@@ -31,9 +31,7 @@ public static class AwsApplicationExtensions
         {
             var options = provider.GetRequiredService<IOptions<S3StorageOptions>>().Value;
 
-            var config = options.Endpoint != null
-                ? new AmazonS3Config { ServiceURL = options.Endpoint.AbsoluteUri }
-                : new AmazonS3Config { RegionEndpoint = RegionEndpoint.GetBySystemName(options.Region) };
+            var config = CreateS3Config(options);
 
             if (options.UseInstanceProfile)
             {
@@ -76,6 +74,21 @@ public static class AwsApplicationExtensions
         app.AddAwsS3Storage();
         app.Services.Configure(configure);
         return app;
+    }
+
+    internal static AmazonS3Config CreateS3Config(S3StorageOptions options)
+    {
+        return options.Endpoint != null
+            ? new AmazonS3Config
+            {
+                ServiceURL = options.Endpoint.AbsoluteUri,
+                ForcePathStyle = options.ForcePathStyle
+            }
+            : new AmazonS3Config
+            {
+                RegionEndpoint = RegionEndpoint.GetBySystemName(options.Region),
+                ForcePathStyle = options.ForcePathStyle
+            };
     }
 
     private static async Task<AWSCredentials> AssumeRoleAsync(

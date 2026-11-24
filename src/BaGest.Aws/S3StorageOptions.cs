@@ -19,6 +19,12 @@ public class S3StorageOptions : IValidatableObject
     [RequiredIf(nameof(Region), null)]
     public Uri Endpoint { get; set; }
 
+    /// <summary>
+    /// Addresses the bucket in the URL path instead of the host name. Needed by S3-compatible
+    /// services (such as MinIO) that do not support virtual-hosted-style addressing.
+    /// </summary>
+    public bool ForcePathStyle { get; set; }
+
     [Required]
     public string Bucket { get; set; }
 
