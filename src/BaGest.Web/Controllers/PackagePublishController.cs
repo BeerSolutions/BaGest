@@ -67,8 +67,8 @@ public class PackagePublishController : Controller
                     await RejectAsync("A dependency has an invalid version range", cancellationToken);
                     break;
 
-                case PackageIndexingResult.MissingRequiredMetadata:
-                    await RejectAsync("The package must have authors and a description", cancellationToken);
+                case PackageIndexingResult.MissingDescription:
+                    await RejectAsync("The package must have a description", cancellationToken);
                     break;
 
                 case PackageIndexingResult.PackageAlreadyExists:

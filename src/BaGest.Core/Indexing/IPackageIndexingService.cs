@@ -31,9 +31,9 @@ public enum PackageIndexingResult
     InvalidDependencyVersionRange,
 
     /// <summary>
-    /// The pushed package's manifest has no authors or no description.
+    /// The pushed package's manifest has no description.
     /// </summary>
-    MissingRequiredMetadata,
+    MissingDescription,
 }
 
 /// <summary>

@@ -12,6 +12,8 @@ namespace BaGest.Core;
 
 public class PackageIndexingService : IPackageIndexingService
 {
+    private const string DescriptionElement = "description";
+
     private readonly IPackageDatabase _packages;
     private readonly IPackageStorageService _storage;
     private readonly ISearchIndexer _search;
@@ -227,17 +229,19 @@ public class PackageIndexingService : IPackageIndexingService
         return PackageIndexingResult.Success;
     }
 
-    // Authors and description are required, see https://learn.microsoft.com/en-us/nuget/reference/nuspec#required-metadata-elements
+    // Mirrors what nuget.org rejects on push: a manifest without a description, and dependency
+    // version ranges that do not parse strictly. nuget.org accepts a manifest without authors,
+    // so authors are not required here either.
     private PackageIndexingResult ValidateManifest(NuspecReader nuspec)
     {
-        if (string.IsNullOrWhiteSpace(nuspec.GetAuthors()) || string.IsNullOrWhiteSpace(nuspec.GetDescription()))
+        if (!HasDescription(nuspec))
         {
             _logger.LogWarning(
-                "Pushed package {PackageId} {PackageVersion} has no authors or no description",
+                "Pushed package {PackageId} {PackageVersion} has no description",
                 nuspec.GetId(),
                 nuspec.GetVersion());
 
-            return PackageIndexingResult.MissingRequiredMetadata;
+            return PackageIndexingResult.MissingDescription;
         }
 
         try
@@ -256,5 +260,14 @@ public class PackageIndexingService : IPackageIndexingService
         }
 
         return PackageIndexingResult.Success;
+    }
+
+    // nuget.org treats the description as missing when the manifest metadata has no description
+    // entry, which is also the case for an empty description element.
+    private static bool HasDescription(NuspecReader nuspec)
+    {
+        return nuspec
+            .GetMetadata()
+            .Any(entry => string.Equals(entry.Key, DescriptionElement, StringComparison.OrdinalIgnoreCase));
     }
 }
