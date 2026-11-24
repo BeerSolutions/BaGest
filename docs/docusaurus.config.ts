@@ -62,7 +62,7 @@ const config: Config = {
     navbar: {
       title: 'BaGest',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'BaGest logo',
         src: 'img/logo.svg',
       },
       items: [
