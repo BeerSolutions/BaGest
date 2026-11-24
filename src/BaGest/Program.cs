@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using BaGest.Core;
 using BaGest.Web;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.WindowsServices;
 
 namespace BaGest;
 
@@ -14,6 +16,13 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        if (WindowsServiceHelpers.IsWindowsService())
+        {
+            // Make sure appsettings.json can be found when running as a Windows service,
+            // which starts with C:\Windows\System32 as the working directory.
+            Directory.SetCurrentDirectory(AppContext.BaseDirectory);
+        }
+
         var host = CreateHostBuilder(args).Build();
         if (!host.ValidateStartupOptions())
         {
@@ -57,6 +66,8 @@ public class Program
     {
         return Host
             .CreateDefaultBuilder(args)
+            // Runs as a Windows service when started by the service control manager; no-op elsewhere.
+            .UseWindowsService()
             .ConfigureAppConfiguration((ctx, config) =>
             {
                 var root = Environment.GetEnvironmentVariable("BAGET_CONFIG_ROOT");
