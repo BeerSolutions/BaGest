@@ -12,15 +12,20 @@ namespace BaGest.Database.MySql;
 public class MySqlContext : AbstractContext<MySqlContext>
 {
     private readonly DatabaseOptions _bagestOptions;
+    private readonly MySqlServerVersionProvider _serverVersionProvider;
 
     /// <summary>
     /// The MySQL Server error code for when a unique constraint is violated.
     /// </summary>
     private const int UniqueConstraintViolationErrorCode = 1062;
 
-    public MySqlContext(DbContextOptions<MySqlContext> efOptions, IOptionsSnapshot<BaGestOptions> bagestOptions) : base(efOptions)
+    public MySqlContext(
+        DbContextOptions<MySqlContext> efOptions,
+        IOptionsSnapshot<BaGestOptions> bagestOptions,
+        MySqlServerVersionProvider serverVersionProvider) : base(efOptions)
     {
         _bagestOptions = bagestOptions.Value.Database;
+        _serverVersionProvider = serverVersionProvider ?? throw new ArgumentNullException(nameof(serverVersionProvider));
     }
 
     public override bool IsUniqueConstraintViolationException(DbUpdateException exception)
@@ -91,7 +96,9 @@ public class MySqlContext : AbstractContext<MySqlContext>
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if(!optionsBuilder.IsConfigured)
-            optionsBuilder.UseMySql(_bagestOptions.ConnectionString, ServerVersion.AutoDetect(_bagestOptions.ConnectionString));
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseMySql(_bagestOptions.ConnectionString, _serverVersionProvider.GetServerVersion(_bagestOptions));
+        }
     }
 }

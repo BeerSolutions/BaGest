@@ -322,10 +322,11 @@ Database migrations are automatically applied on application startup.
 
 ### Environment Variables
 
-There are two environment variables related to database configuration. These are:
+There are three environment variables related to database configuration. These are:
 
 - **Database__Type**: The database engine to use, this should be one of the strings from the above list such as `PostgreSql` or `Sqlite`.
 - **Database__ConnectionString**: The connection string for your database engine.
+- **Database__ServerVersion** (MySQL and MariaDB only, optional): The version of your database server, for example `8.4.0-mysql` or `11.4.0-mariadb`.
 
 ### `appsettings.json`
 
@@ -344,11 +345,12 @@ The database settings are located under the `Database` key in the `appsettings.j
 }
 ```
 
-There are two settings related to the database configuration:
+There are four settings related to the database configuration:
 
 - **Type**: The database engine to use, this should be one of the strings from the above list such as `PostgreSql` or `Sqlite`.
 - **ConnectionString**: The connection string for your database engine.
 - **JournalMode** (optional, SQLite only): The [journal mode](https://www.sqlite.org/pragma.html#pragma_journal_mode) to apply to the database on startup. See below.
+- **ServerVersion** (MySQL and MariaDB only, optional): The version of your database server, for example `8.4.0-mysql` or `11.4.0-mariadb`. If it is not set, BaGest asks the server for its version once, the first time it uses the database.
 
 ### SQLite journal mode
 

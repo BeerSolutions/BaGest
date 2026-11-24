@@ -14,7 +14,10 @@ public class MySqlModelSnapshotTests
             .UseMySql("Server=localhost", ServerVersion.Parse("8.4.0-mysql"))
             .Options;
 
-        using var context = new MySqlContext(options, StaticOptionsSnapshot.ForConnectionString("Server=localhost"));
+        using var context = new MySqlContext(
+            options,
+            StaticOptionsSnapshot.ForConnectionString("Server=localhost"),
+            new MySqlServerVersionProvider());
 
         Assert.False(context.Database.HasPendingModelChanges());
     }
