@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using System.Linq;
 using BaGest.Authentication;
 using BaGest.Core;
 using BaGest.Core.Extensions;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +80,25 @@ public class Startup
         //app.AddAzureSearch();
     }
 
+    // Dates and numbers are formatted using the culture sent by the browser (Accept-Language).
+    // The UI language itself stays unchanged, and requests without a supported culture
+    // keep using the server's default culture.
+    private static RequestLocalizationOptions CreateRequestLocalizationOptions()
+    {
+        var options = new RequestLocalizationOptions
+        {
+            SupportedCultures = CultureInfo.GetCultures(CultureTypes.AllCultures)
+                .Where(c => !string.IsNullOrEmpty(c.Name))
+                .ToList(),
+            SupportedUICultures = new[] { CultureInfo.CurrentUICulture },
+        };
+
+        options.RequestCultureProviders.Clear();
+        options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
+
+        return options;
+    }
+
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
@@ -92,6 +114,7 @@ public class Startup
         app.UsePathBase(options.PathBase);
 
         app.UseStaticFiles();
+        app.UseRequestLocalization(CreateRequestLocalizationOptions());
         app.UseAuthentication();
         app.UseRouting();
         app.UseAuthorization();
