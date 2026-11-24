@@ -34,4 +34,13 @@ public class RetentionOptions
     /// For a limit of 5, if there are versions 1.0.0-alpha.1 through 1.0.0-alpha.5 and a package version 1.0.0-alpha.6 is pushed, version 1.0.0-alpha.0 will be deleted.  
     /// </summary>  
     public uint? MaxPrereleaseVersions { get; set; }
+
+    /// <summary>
+    /// Whether at least one retention limit is configured. When none is, retention never runs.
+    /// </summary>
+    public bool HasAnyLimit =>
+        MaxMajorVersions.HasValue
+        || MaxMinorVersions.HasValue
+        || MaxPatchVersions.HasValue
+        || MaxPrereleaseVersions.HasValue;
 }

@@ -387,4 +387,35 @@ public class PackageDeletionServiceTests
         Assert.Equal(expectedCount, databaseStep);
         Assert.Equal(expectedCount, storageStep);
     }
+
+    [Fact]
+    public async Task WhenOnlyFewVersionsExist_StillAppliesPrereleaseLimit()
+    {
+        // Arrange - fewer versions than MaxMajorVersions must not skip the other limits
+        var cancellationToken = CancellationToken.None;
+        _packages
+            .Setup(p => p.FindAsync(PackageId, true, cancellationToken))
+            .ReturnsAsync([
+                new Package { Id = PackageId, Version = new NuGetVersion("1.0.0-beta.1") },
+                new Package { Id = PackageId, Version = new NuGetVersion("1.0.0-beta.2") },
+                new Package { Id = PackageId, Version = new NuGetVersion("1.0.0-beta.3") },
+            ]);
+        _storage
+            .Setup(s => s.DeleteAsync(PackageId, It.IsAny<NuGetVersion>(), cancellationToken))
+            .Returns(Task.CompletedTask);
+        var deletedVersions = new List<NuGetVersion>();
+        _packages
+            .Setup(p => p.HardDeletePackageAsync(PackageId, It.IsAny<NuGetVersion>(), cancellationToken))
+            .Callback<string, NuGetVersion, CancellationToken>((_, v, _) => deletedVersions.Add(v))
+            .ReturnsAsync(true);
+
+        // Act
+        var deleted = await _target.DeleteOldVersionsAsync(
+            new Package { Id = PackageId, Version = new NuGetVersion("1.0.0-beta.3"), IsPrerelease = true },
+            maxMajor: 5, maxMinor: null, maxPatch: null, maxPrerelease: 1, cancellationToken);
+
+        // Assert
+        Assert.Equal(2, deleted);
+        Assert.Equal([new NuGetVersion("1.0.0-beta.1"), new NuGetVersion("1.0.0-beta.2")], deletedVersions);
+    }
 }
