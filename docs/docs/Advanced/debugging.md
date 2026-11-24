@@ -1,4 +1,4 @@
-# Debugging BaGetter
+# Debugging BaGest
 
 :::warning
 

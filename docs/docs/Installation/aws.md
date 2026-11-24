@@ -1,7 +1,7 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Run BaGetter on AWS
+# Run BaGest on AWS
 
 :::warning
 
@@ -9,11 +9,11 @@ This page is a work in progress!
 
 :::
 
-Use Amazon Web Services to scale BaGetter. You can store metadata on [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds) and upload packages to [Amazon S3](https://aws.amazon.com/s3/) or any other S3-compatible service.
+Use Amazon Web Services to scale BaGest. You can store metadata on [Amazon Relational Database Service (RDS)](https://aws.amazon.com/rds) and upload packages to [Amazon S3](https://aws.amazon.com/s3/) or any other S3-compatible service.
 
-## Configure BaGetter
+## Configure BaGest
 
-You can modify BaGetter's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGetter's configuration](../configuration.md) guide.
+You can modify BaGest's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGest's configuration](../configuration.md) guide.
 
 ### Amazon S3
 

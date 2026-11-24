@@ -1,10 +1,10 @@
 # Import NuGet.Server packages
 
-[NuGet.Server](https://github.com/NuGet/NuGet.Server) is a lightweight standalone NuGet server. It is strongly recommended that you upgrade to BaGetter if you use NuGet.Server. Feel free to open a [GitHub issue](https://github.com/bagetter/BaGetter/issues) if you need help migrating.
+[NuGet.Server](https://github.com/NuGet/NuGet.Server) is a lightweight standalone NuGet server. It is strongly recommended that you upgrade to BaGest if you use NuGet.Server. Feel free to open a [GitHub issue](https://github.com/BeerSolutions/BaGest/issues) if you need help migrating.
 
 :::info
 
-Please refer to the [BaGetter vs NuGet.Server](../vs/nugetserver.md) page for reasons to upgrade to BaGetter.
+Please refer to the [BaGest vs NuGet.Server](../vs/nugetserver.md) page for reasons to upgrade to BaGest.
 
 :::
 
@@ -14,10 +14,10 @@ Make sure that you've installed [nuget.exe](https://www.nuget.org/downloads). In
 
 ```powershell
 $source = "<NuGet.Server package source>"
-$destination = "<BaGetter package source>"
+$destination = "<BaGest package source>"
 ```
 
-If you've [configured BaGetter to require an API Key](https://bagetter.com/docs/configuration/#requiring-an-api-key), set it using [the `setapikey` command](https://docs.microsoft.com/en-us/nuget/reference/cli-reference/cli-ref-setapikey):
+If you've [configured BaGest to require an API Key](https://beersolutions.github.io/BaGest/docs/configuration/#requiring-an-api-key), set it using [the `setapikey` command](https://docs.microsoft.com/en-us/nuget/reference/cli-reference/cli-ref-setapikey):
 
 ```powershell
 & nuget.exe setapikey "MY-API-KEY" -Source $destination

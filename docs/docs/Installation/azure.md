@@ -1,7 +1,7 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Run BaGetter on Azure
+# Run BaGest on Azure
 
 :::warning
 
@@ -9,16 +9,16 @@ This page is a work in progress!
 
 :::
 
-Use Azure to scale BaGetter. You can store metadata on Azure [SQL Database](https://azure.microsoft.com/products/azure-sql/database/) or [Table Storage](https://azure.microsoft.com/products/storage/tables/), upload packages to [Azure Blob Storage](https://azure.microsoft.com/products/storage/blobs/), and soon provide powerful search using [Azure Search](https://azure.microsoft.com/services/search/).
+Use Azure to scale BaGest. You can store metadata on Azure [SQL Database](https://azure.microsoft.com/products/azure-sql/database/) or [Table Storage](https://azure.microsoft.com/products/storage/tables/), upload packages to [Azure Blob Storage](https://azure.microsoft.com/products/storage/blobs/), and soon provide powerful search using [Azure Search](https://azure.microsoft.com/services/search/).
 
 ## TODO
 
 - App Service
 - High availability setup
 
-## Configure BaGetter
+## Configure BaGest
 
-You can modify BaGetter's configurations by editing the `appsettings.json` file or through [environment variables](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/?view=aspnetcore-8.0#non-prefixed-environment-variables). For the full list of configurations, please refer to [BaGetter's configuration](../configuration.md) guide.
+You can modify BaGest's configurations by editing the `appsettings.json` file or through [environment variables](https://learn.microsoft.com/aspnet/core/fundamentals/configuration/?view=aspnetcore-8.0#non-prefixed-environment-variables). For the full list of configurations, please refer to [BaGest's configuration](../configuration.md) guide.
 
 ### Package Metadata Database
 
@@ -114,7 +114,7 @@ To use a connection string, add it like this:
 
 ### Azure Search
 
-Azure Search is currently not available due to significant API changes BaGetter has to make. Once it's available, you can set the search type to `AzureSearch` and provide an account name and API key:
+Azure Search is currently not available due to significant API changes BaGest has to make. Once it's available, you can set the search type to `AzureSearch` and provide an account name and API key:
 
 ```json
 {

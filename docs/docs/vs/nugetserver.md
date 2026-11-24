@@ -6,7 +6,7 @@ This page is a work in progress!
 
 :::
 
-[NuGet.Server](https://github.com/NuGet/NuGet.Server) is a lightweight standalone NuGet server. It is strongly recommended that you upgrade to BaGetter if you use NuGet.Server. Feel free to open [GitHub issues](https://github.com/bagetter/BaGetter/issues) if you need help migrating.
+[NuGet.Server](https://github.com/NuGet/NuGet.Server) is a lightweight standalone NuGet server. It is strongly recommended that you upgrade to BaGest if you use NuGet.Server. Feel free to open [GitHub issues](https://github.com/BeerSolutions/BaGest/issues) if you need help migrating.
 
 - NuGet.Server
   - Only runs on Windows
@@ -15,10 +15,10 @@ This page is a work in progress!
   - Does not scale well
   - Not well documented
   - Not well maintained
-- BaGetter
+- BaGest
   - Cross-platform
   - Supports NuGet v3 APIs
 
 ## Migration Guide
 
-You can use the [NuGet.Server migration](../Import/nugetserver.md) guide to import your NuGet.Server packages into BaGetter.
+You can use the [NuGet.Server migration](../Import/nugetserver.md) guide to import your NuGet.Server packages into BaGest.

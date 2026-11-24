@@ -1,8 +1,8 @@
-# Run BaGetter on Docker
+# Run BaGest on Docker
 
-## Configure BaGetter (optional)
+## Configure BaGest (optional)
 
-Create a file named `bagetter.env` to store BaGetter's configurations:
+Create a file named `bagest.env` to store BaGest's configurations:
 
 ```shell
 # The following config is the API Key used to publish packages.
@@ -12,43 +12,43 @@ ApiKey=NUGET-SERVER-API-KEY
 Storage__Type=FileSystem
 Storage__Path=/data
 Database__Type=Sqlite
-Database__ConnectionString=Data Source=/data/db/bagetter.db
+Database__ConnectionString=Data Source=/data/db/bagest.db
 Search__Type=Database
 ```
 
-For a full list of configurations, please refer to [BaGetter's configuration](../configuration.md) guide.
+For a full list of configurations, please refer to [BaGest's configuration](../configuration.md) guide.
 
 :::info
 
-The `bagetter.env` file stores [BaGetter's configuration](../configuration) as environment variables.
+The `bagest.env` file stores [BaGest's configuration](../configuration) as environment variables.
 Alternatively, the configuration can be injected via environment variables directly, e.g. the `environment` array in a docker compose file or the `--env` flag in a `docker run` command.
 To learn how these configurations work, please refer to [ASP.NET Core's configuration documentation](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-2.1&tabs=basicconfiguration#configuration-by-environment).
 
 :::
 
-If this step is omitted the default mode (unconfigured) will be Sqlite with the sql blobs stored in the path `/data/db/bagetter.db`.
+If this step is omitted the default mode (unconfigured) will be Sqlite with the sql blobs stored in the path `/data/db/bagest.db`.
 
-## Run BaGetter
+## Run BaGest
 
-1. Create a folder named `bagetter-data` in the same directory as the `bagetter.env` file. This will be used by BaGetter to persist its state.
-2. Pull BaGetter's latest [docker image](https://hub.docker.com/r/bagetter/bagetter):
+1. Create a folder named `bagest-data` in the same directory as the `bagest.env` file. This will be used by BaGest to persist its state.
+2. Pull BaGest's latest [docker image](https://github.com/BeerSolutions/BaGest/pkgs/container/bagest):
 
 ```shell
-docker pull bagetter/bagetter
+docker pull ghcr.io/beersolutions/bagest
 ```
 
-You can now run BaGetter...
+You can now run BaGest...
 
 - ...with optional `.env` file:
 
 ```shell
-docker run --rm --name nuget-server -p 5000:8080 --env-file bagetter.env -v "$(pwd)/bagetter-data:/data" bagetter/bagetter:latest
+docker run --rm --name nuget-server -p 5000:8080 --env-file bagest.env -v "$(pwd)/bagest-data:/data" ghcr.io/beersolutions/bagest:latest
 ```
 
 - ...or without:
 
 ```shell
-docker run --rm --name nuget-server -p 5000:8080 -v "$(pwd)/bagetter-data:/data" bagetter/bagetter:latest
+docker run --rm --name nuget-server -p 5000:8080 -v "$(pwd)/bagest-data:/data" ghcr.io/beersolutions/bagest:latest
 ```
 
 ## Publish packages
@@ -68,7 +68,7 @@ dotnet nuget push -s http://localhost:5000/v3/index.json -k NUGET-SERVER-API-KEY
 :::warning
 
 The default API Key to publish packages is `NUGET-SERVER-API-KEY`.
-You should change this to a secret value to secure your server. See [Configure BaGetter](#configure-bagetter-optional).
+You should change this to a secret value to secure your server. See [Configure BaGest](#configure-bagest-optional).
 
 :::
 
@@ -95,9 +95,9 @@ You can load symbols by using the following symbol location:
 
 For Visual Studio, please refer to the [Configure Debugging](https://docs.microsoft.com/en-us/visualstudio/debugger/specify-symbol-dot-pdb-and-source-files-in-the-visual-studio-debugger?view=vs-2017#configure-symbol-locations-and-loading-options) guide.
 
-## Running BaGetter behind a reverse proxy
+## Running BaGest behind a reverse proxy
 
-BaGetter can be run behind a reverse proxy in order to provide HTTPS, your own domain, and other features. For the API to deliver proper URLs, the proxy needs to forward the `X-Forwarded-Host` header, or the `Host` header iteslf.  
+BaGest can be run behind a reverse proxy in order to provide HTTPS, your own domain, and other features. For the API to deliver proper URLs, the proxy needs to forward the `X-Forwarded-Host` header, or the `Host` header iteslf.  
 For more information, please refer to the [ASP.NET Core documentation](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer).
 
 Consider binding port 5000 to localhost only using -p 127.0.0.1:5000:8080 to avoid any transmission of non encrypted data even over internal networks
