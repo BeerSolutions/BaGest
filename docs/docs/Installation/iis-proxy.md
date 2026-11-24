@@ -43,7 +43,7 @@ Ensure that the configuration's storage `Path` has the appropriate forward slash
 ...
 ```
 
-Note that you will need to adjust folder permissions if the `Path` is created outside of the BaGest top-level directory. See the [BaGestt Folder Permissions](#bagest-folder-permissions).
+Note that you will need to adjust folder permissions if the `Path` is created outside of the BaGest top-level directory. See the [BaGest Folder Permissions](#bagest-folder-permissions).
 
 ## IIS server options
 

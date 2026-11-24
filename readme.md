@@ -42,6 +42,14 @@ For more information, please refer to the [documentation].
 
 We welcome contributions! Check out the [Contributing Guide](CONTRIBUTING.md) to get started.
 
+## 🔄 Migrating from BaGetter
+
+* Configuration keys and environment variables (`Database__*`, `Storage__*`, `ApiKey`, ...) are unchanged.
+* The default SQLite file is now `bagest.db` (was `bagetter.db`). If you relied on the default connection string, rename the file or set `Database__ConnectionString` explicitly; the Docker image uses `/data/db/bagest.db`.
+* The image is published as `ghcr.io/beersolutions/bagest`, the release archive is `bagest-<version>.zip` with `BaGest.dll` as entry point, and the NuGet packages are named `BaGest.*`.
+* The Helm chart is now named `bagest`, so resource names change on upgrade.
+* Database schema and migrations are unchanged.
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).

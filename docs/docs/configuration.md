@@ -177,7 +177,7 @@ downloaded if you know the package's id and version. You can override this behav
 
 ## Package auto-deletion
 
-If your build server generates many nuget packages, your BaGest server can quickly run out of space. Bagest leverages [SemVer 2](https://semver.org/) and has logic to keep a history of packages based on the version numbering such as `<major>.<minor>.<patch>-<prerelease tag>.<prerelease build number>`.
+If your build server generates many nuget packages, your BaGest server can quickly run out of space. BaGest leverages [SemVer 2](https://semver.org/) and has logic to keep a history of packages based on the version numbering such as `<major>.<minor>.<patch>-<prerelease tag>.<prerelease build number>`.
 
 There is an optional config section for `Retention` and the following parameters can be enabled to limit history for each level of the version. If none of these are set, there are no cleaning rules enforced. Each parameter is optional, e.g. if you specify only a `MaxPatchVersions`, the package limit will only enforced within each major and minor version combination.
 Packages deleted are always the oldest based on version numbers.
