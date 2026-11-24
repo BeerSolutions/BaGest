@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -163,6 +164,38 @@ public class MirrorIntegrationTests : IDisposable
   ""published"": ""2020-01-01T00:00:00Z"",
   ""registration"": ""http://localhost/v3/registration/testdata/index.json""
 }", json);
+    }
+
+    [Fact]
+    public async Task ConcurrentPackageDownloadsOfUncachedPackageAllSucceed()
+    {
+        await _upstream.AddPackageAsync(_packageStream);
+
+        // A parallel restore asks for the same not yet cached package many times at once.
+        var responses = await Task.WhenAll(
+            Enumerable
+                .Range(0, 25)
+                .Select(_ => _downstreamClient.GetAsync("v3/package/TestData/1.2.3/TestData.1.2.3.nupkg")));
+
+        try
+        {
+            Assert.All(responses, response => Assert.Equal(HttpStatusCode.OK, response.StatusCode));
+        }
+        finally
+        {
+            foreach (var response in responses)
+            {
+                response.Dispose();
+            }
+        }
+    }
+
+    [Fact]
+    public async Task PackageDownloadMissingUpstreamReturnsNotFound()
+    {
+        using var response = await _downstreamClient.GetAsync("v3/package/Missing/1.0.0/Missing.1.0.0.nupkg");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     public void Dispose()
