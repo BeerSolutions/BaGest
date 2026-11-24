@@ -281,6 +281,25 @@ The commands are slightly different when using the Package Manager console in Vi
 dotnet nuget add source "http://localhost:5000/v3/index.json" --name "bagest" --username "username" --password "password"
 ```
 
+### Combining an API key with a private feed
+
+An API key only protects publishing, while the credentials above protect the rest of the feed, including the service index `/v3/index.json`. When both are configured, `dotnet nuget push -s http://localhost:5000/v3/index.json -k NUGET-SERVER-API-KEY ...` fails with `401 (Unauthorized)`: the NuGet client first loads the service index to discover the push endpoint, and that request carries only the API key, not the username and password. This is expected behavior.
+
+There are two ways to push to such a server:
+
+1. Add the feed as a [package source with credentials](#private-feeds) so that NuGet sends them when it loads the service index, and push with the API key as usual:
+
+    ```shell
+    dotnet nuget add source "http://localhost:5000/v3/index.json" --name "bagest" --username "username" --password "password" --store-password-in-clear-text
+    dotnet nuget push -s bagest -k NUGET-SERVER-API-KEY package.1.0.0.nupkg
+    ```
+
+2. Push directly to the publish endpoint `/api/v2/package`, which only requires the API key and skips the service index. Use the full path of a single package, not a wildcard:
+
+    ```shell
+    dotnet nuget push -s http://localhost:5000/api/v2/package -k NUGET-SERVER-API-KEY package.1.0.0.nupkg
+    ```
+
 ## Database configuration
 
 BaGest supports multiple database engines for storing package information:
