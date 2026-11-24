@@ -1,17 +1,17 @@
-# BaGetter.Protocol
+# BaGest.Protocol
 
-[![Build Status](https://sharml.visualstudio.com/BaGet/_apis/build/status/loic-sharma.BaGet)](https://sharml.visualstudio.com/BaGet/_build/latest?definitionId=2) [![Join the chat at https://gitter.im/BaGetServer/community](https://badges.gitter.im/BaGetServer/community.svg)](https://gitter.im/BaGetServer/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Nuget](https://img.shields.io/nuget/dt/BaGetter.Protocol)](https://www.nuget.org/packages/BaGetter.Protocol)
+[![Build Status](https://sharml.visualstudio.com/BaGet/_apis/build/status/loic-sharma.BaGet)](https://sharml.visualstudio.com/BaGet/_build/latest?definitionId=2) [![Join the chat at https://gitter.im/BaGetServer/community](https://badges.gitter.im/BaGetServer/community.svg)](https://gitter.im/BaGetServer/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Nuget](https://img.shields.io/nuget/dt/BaGest.Protocol)](https://www.nuget.org/packages/BaGest.Protocol)
 
-BaGetter's SDK to interact with the [NuGet protocol](https://docs.microsoft.com/en-us/nuget/api/overview).
+BaGest's SDK to interact with the [NuGet protocol](https://docs.microsoft.com/en-us/nuget/api/overview).
 
-[Package (NuGet)](https://www.nuget.org/packages/BaGetter.Protocol) | [Documentation](https://loic-sharma.github.io/BaGet/advanced/sdk/) | [Samples](https://github.com/loic-sharma/BaGet/tree/master/samples)
+[Package (NuGet)](https://www.nuget.org/packages/BaGest.Protocol) | [Documentation](https://loic-sharma.github.io/BaGet/advanced/sdk/) | [Samples](https://github.com/loic-sharma/BaGet/tree/master/samples)
 
 ## Getting started
 
 ### Install the package
 
 ```powershell
-dotnet add package BaGetter.Protocol
+dotnet add package BaGest.Protocol
 ```
 
 ## Examples

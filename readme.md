@@ -1,32 +1,31 @@
-# BaGetter 🥖🛒
+# BaGest 🥖🛒
 
-BaGetter is a lightweight [NuGet] and [symbol] server, written in C#.
-It's forked from [BaGet] for progressive and community driven development.
+BaGest is a lightweight [NuGet] and [symbol] server, written in C#.
 
 <p align="center">
   <img width="100%" src="https://user-images.githubusercontent.com/737941/50140219-d8409700-0258-11e9-94c9-dad24d2b48bb.png">
 </p>
 
-![Build status] [![Docker image version]][Docker link] [![Discord][Discord image]][Discord link]
+![Build status] [![Release]][Release link] [![Container image]][Container link]
 
 ## 🚀 Getting Started
 
 With Docker:
 
-1. `docker run -p 5000:8080 -v ./bagetter-data:/data bagetter/bagetter:latest`
+1. `docker run -p 5000:8080 -v ./bagest-data:/data ghcr.io/beersolutions/bagest:latest`
 2. Browse `http://localhost:5000/` in your browser
 
 With .NET:
 
 1. Install the [.NET SDK]
-2. Download and extract [BaGetter's latest release]
-3. Start the service with `dotnet BaGetter.dll`
+2. Download and extract [BaGest's latest release]
+3. Start the service with `dotnet BaGest.dll`
 4. Browse `http://localhost:5000/` in your browser
 
 With IIS ([official microsoft documentation](https://learn.microsoft.com/aspnet/core/host-and-deploy/iis)):
 
 1. Install the [hosting bundle](https://dotnet.microsoft.com/permalink/dotnetcore-current-windows-runtime-bundle-installer)
-2. Download the [zip release](https://github.com/bagetter/BaGetter/releases) of BaGetter
+2. Download the [zip release](https://github.com/BeerSolutions/BaGest/releases) of BaGest
 3. Unpack the zip file contents to a folder of your choice
 4. Create a new or configure an existing IIS site to point its physical path to the folder where you unpacked the zip file
 
@@ -49,37 +48,41 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 📞 Contact
 
-If you have questions, feel free to open an [issue] or join our [Discord Server][Discord link] for discussions.
+If you have questions, feel free to open an [issue].
 
 ## 🤝🏼 Contributors
 
-Thanks to everyone who helps to make BaGetter better!
+Thanks to everyone who helps to make BaGest better!
 
-<a href="https://github.com/bagetter/BaGetter/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=bagetter/BaGetter" />
+<a href="https://github.com/BeerSolutions/BaGest/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=BeerSolutions/BaGest" />
 </a>
 
+## 🥖 Origin
 
-[Build status]: https://img.shields.io/github/actions/workflow/status/bagetter/BaGetter/.github/workflows/main.yml?logo=github&logoColor=fff
+BaGest continues [BaGetter], a community-driven fork of [BaGet] by Loic Sharma. BaGet laid the foundation of this server, and BaGetter carried it forward with new features and a lively community. Many thanks to Loic Sharma, the BaGetter maintainers and everyone who contributed to either project; their work lives on in BaGest and their copyright notices are preserved in the [LICENSE](LICENSE).
 
-[Docker image version]: https://img.shields.io/docker/v/bagetter/bagetter?logo=docker&logoColor=fff&label=version
-[Docker link]: https://hub.docker.com/r/bagetter/bagetter
-[Docker doc link]: https://www.bagetter.com/docs/Installation/docker
 
-[Discord image]: https://img.shields.io/discord/1181167608427450388?logo=discord&logoColor=fff
-[Discord link]: https://discord.gg/XsAmm6f2hZ
+[Build status]: https://img.shields.io/github/actions/workflow/status/BeerSolutions/BaGest/main.yml?logo=github&logoColor=fff
+
+[Release]: https://img.shields.io/github/v/release/BeerSolutions/BaGest?include_prereleases&logo=github&logoColor=fff
+[Release link]: https://github.com/BeerSolutions/BaGest/releases
+[Container image]: https://img.shields.io/badge/ghcr.io-beersolutions%2Fbagest-blue?logo=docker&logoColor=fff
+[Container link]: https://github.com/BeerSolutions/BaGest/pkgs/container/bagest
+[Docker doc link]: https://beersolutions.github.io/BaGest/docs/Installation/docker
 
 [NuGet]: https://learn.microsoft.com/nuget/what-is-nuget
 [symbol]: https://docs.microsoft.com/en-us/windows/desktop/debug/symbol-servers-and-symbol-stores
 [.NET SDK]: https://www.microsoft.com/net/download
-[Issue]: https://github.com/bagetter/BaGetter/issues
+[Issue]: https://github.com/BeerSolutions/BaGest/issues
 [BaGet]: https://github.com/loic-sharma/BaGet
+[BaGetter]: https://github.com/bagetter/BaGetter
 
-[BaGetter's latest release]: https://github.com/bagetter/BaGetter/releases
+[BaGest's latest release]: https://github.com/BeerSolutions/BaGest/releases
 
-[Documentation]: https://www.bagetter.com/
-[Read through caching]: https://www.bagetter.com/docs/configuration#enable-read-through-caching
-[AWS doc link]: https://www.bagetter.com/docs/Installation/aws
-[GCP doc link]: https://www.bagetter.com/docs/Installation/gcp
-[Aliyun doc link]: https://www.bagetter.com/docs/Installation/aliyun
-[Tencent doc link]: https://www.bagetter.com/docs/Installation/tencent
+[Documentation]: https://beersolutions.github.io/BaGest/
+[Read through caching]: https://beersolutions.github.io/BaGest/docs/configuration#enable-read-through-caching
+[AWS doc link]: https://beersolutions.github.io/BaGest/docs/Installation/aws
+[GCP doc link]: https://beersolutions.github.io/BaGest/docs/Installation/gcp
+[Aliyun doc link]: https://beersolutions.github.io/BaGest/docs/Installation/aliyun
+[Tencent doc link]: https://beersolutions.github.io/BaGest/docs/Installation/tencent

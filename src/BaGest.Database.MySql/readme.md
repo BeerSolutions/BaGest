@@ -1,18 +1,18 @@
-# BaGetter's MySQL Database Provider
+# BaGest's MySQL Database Provider
 
-This project contains BaGetter's MySQL database provider.
+This project contains BaGest's MySQL database provider.
 
 ## Migrations
 
 Check for pending changes with:
 ```
-dotnet ef migrations has-pending-model-changes --context MySqlContext --startup-project ..\BaGetter\BaGetter.csproj
+dotnet ef migrations has-pending-model-changes --context MySqlContext --startup-project ..\BaGest\BaGest.csproj
 ```
 
 Add a migration with:
 
 ```
-dotnet ef migrations add MigrationName --context MySqlContext --output-dir Migrations --startup-project ..\BaGetter\BaGetter.csproj
+dotnet ef migrations add MigrationName --context MySqlContext --output-dir Migrations --startup-project ..\BaGest\BaGest.csproj
 ```
 
 Apply the migration to your database with:

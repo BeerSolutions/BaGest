@@ -1,6 +1,6 @@
-# BaGetter.Core
+# BaGest.Core
 
-Contains BaGetter's core logic. The important folders are:
+Contains BaGest's core logic. The important folders are:
 
 * Indexing - Logic to upload packages and symbols
 * Metadata - Used to track packages' metadata, usually in a database
