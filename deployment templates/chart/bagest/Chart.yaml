@@ -1,6 +1,6 @@
 apiVersion: v2
-name: bagetter
-description: A Helm chart for BaGetter nuget package server
+name: bagest
+description: A Helm chart for BaGest nuget package server
 type: application
 
 # This is the chart version. This version number should be incremented each time you make changes
@@ -17,14 +17,14 @@ appVersion: "1.0.4"
 keywords:
   - nuget
   - baget
-  - bagetter
+  - bagest
 
-home: https://github.com/bagetter/BaGetter/tree/master/charts/BaGetter
+home: https://github.com/BeerSolutions/BaGest/tree/main/deployment%20templates/chart/bagest
 # icon: 
 
 sources:
-  - https://github.com/bagetter/BaGetter
-  - https://hub.docker.com/r/bagetter/bagetter
+  - https://github.com/BeerSolutions/BaGest
+  - https://github.com/BeerSolutions/BaGest/pkgs/container/bagest
 
 dependencies:
   - name: common

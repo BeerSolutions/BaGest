@@ -1,15 +1,15 @@
-# bagetter
+# bagest
 
 ![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.4](https://img.shields.io/badge/AppVersion-1.0.4-informational?style=flat-square)
 
-A Helm chart for BaGetter nuget package server
+A Helm chart for BaGest nuget package server
 
-**Homepage:** <https://github.com/bagetter/BaGetter/tree/master/charts/BaGetter>
+**Homepage:** <https://github.com/BeerSolutions/BaGest/tree/main/deployment%20templates/chart/bagest>
 
 ## Source Code
 
-* <https://github.com/bagetter/BaGetter>
-* <https://hub.docker.com/r/bagetter/bagetter>
+* <https://github.com/BeerSolutions/BaGest>
+* <https://github.com/BeerSolutions/BaGest/pkgs/container/bagest>
 
 ## Requirements
 
@@ -21,13 +21,13 @@ A Helm chart for BaGetter nuget package server
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| configMaps | object | See below | environment variables. See more environment variables in the [BaGetter documentation](https://www.bagetter.com/docs/Installation/docker). |
-| configMaps.bagetter-env.data.ApiKey | string | `"ChangeMe"` | Set the Nuget API key |
-| configMaps.bagetter-env.data.Storage__Type | string | `"FileSystem"` | Set database and storage settings |
+| configMaps | object | See below | environment variables. See more environment variables in the [BaGest documentation](https://beersolutions.github.io/BaGest/docs/Installation/docker). |
+| configMaps.bagest-env.data.ApiKey | string | `"ChangeMe"` | Set the Nuget API key |
+| configMaps.bagest-env.data.Storage__Type | string | `"FileSystem"` | Set database and storage settings |
 | controllers | object | See values.yaml | Configures containers for the chart. |
-| controllers.bagetter.containers.bagetter.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
-| controllers.bagetter.containers.bagetter.image.repository | string | `"bagetter/bagetter"` | image repository |
-| controllers.bagetter.containers.bagetter.image.tag | string | `"latest"` | image tag |
+| controllers.bagest.containers.bagest.image.pullPolicy | string | `"IfNotPresent"` | image pull policy |
+| controllers.bagest.containers.bagest.image.repository | string | `"ghcr.io/beersolutions/bagest"` | image repository |
+| controllers.bagest.containers.bagest.image.tag | string | `"latest"` | image tag |
 | ingress | object | See values.yaml | Enable and configure ingress settings for the chart under this key. |
 | persistence | object | See values.yaml | Configure persistence settings for the chart under this key. |
 | service | object | See values.yaml | Configures service settings for the chart. |

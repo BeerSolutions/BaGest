@@ -8,10 +8,10 @@
 # https://github.com/bjw-s/helm-charts/tree/main/charts/library/common/values.yaml
 #
 
-# -- environment variables. See more environment variables in the [BaGetter documentation](https://www.bagetter.com/docs/Installation/docker).
+# -- environment variables. See more environment variables in the [BaGest documentation](https://beersolutions.github.io/BaGest/docs/Installation/docker).
 # @default -- See below
 configMaps:
-  bagetter-env:
+  bagest-env:
     data:
       # -- Set the Nuget API key
       ApiKey: "ChangeMe"
@@ -19,8 +19,8 @@ configMaps:
       Storage__Type: "FileSystem"
       Storage__Path: "/data"
       Database__Type: "Sqlite"
-      Database__ConnectionString: "Data Source=/data/bagetter.db"
-      # -- Additional settings. See [BaGetter configuration](https://www.bagetter.com/docs/configuration)
+      Database__ConnectionString: "Data Source=/data/bagest.db"
+      # -- Additional settings. See [BaGest configuration](https://beersolutions.github.io/BaGest/docs/configuration)
       #Mirror__Enabled: "true"
       #Mirror__PackageSource: "https://api.nuget.org/v3/index.json"
       #PackageDeletionBehavior: "HardDelete"
@@ -28,19 +28,19 @@ configMaps:
 # -- Configures containers for the chart.
 # @default -- See values.yaml
 controllers:
-  bagetter:
+  bagest:
     containers:
-      bagetter:
+      bagest:
         image:
           # -- image repository
-          repository: bagetter/bagetter
+          repository: ghcr.io/beersolutions/bagest
           # -- image tag
           tag: latest
           # -- image pull policy
           pullPolicy: IfNotPresent
         envFrom:
           - configMapRef:
-              name: bagetter-bagetter-env
+              name: bagest-bagest-env
         resources:
           requests:
             cpu: 100m
@@ -66,8 +66,8 @@ controllers:
 # -- Configures service settings for the chart.
 # @default -- See values.yaml
 service:
-  bagetter-srv:
-    controller: bagetter
+  bagest-srv:
+    controller: bagest
     ports:
       http:
         port: 8080
@@ -75,21 +75,21 @@ service:
 # -- Enable and configure ingress settings for the chart under this key.
 # @default -- See values.yaml
 ingress:
-  bagetter-ingress:
+  bagest-ingress:
     enabled: false
     # className: "ingress-nginx"
     hosts: []
-      # - host: bagetter.mydomain.com
+      # - host: bagest.mydomain.com
       #   paths:
       #     - path: /
       #       service:
-      #         identifier: bagetter
+      #         identifier: bagest
       #         port: 8080
 
 # -- Configure persistence settings for the chart under this key.
 # @default -- See values.yaml
 persistence:
-  bagetter-data:
+  bagest-data:
     enabled: true
     accessMode: "ReadWriteOnce"
     size: "10Gi"
