@@ -1,6 +1,8 @@
 ARG Version=1.0.0
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
+# Base images are pinned to a tag AND a multi-arch digest for reproducible builds.
+# Refresh both together (e.g. via Dependabot/Renovate) to pick up security patches.
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine@sha256:19a9b6214e3e78ffabc3469de57aeccb4d388bacb14de1e98533e7f94c34f4b3 AS build
 ARG Version
 ARG TARGETARCH
 WORKDIR /src
@@ -32,12 +34,10 @@ RUN dotnet publish BaGest \
     -a $TARGETARCH
 
 # create default folders
-RUN mkdir -p "/data/packages" \
-    mkdir -p "/data/symbols" \
-    mkdir -p "/data/db"
+RUN mkdir -p /data/packages /data/symbols /data/db
 
 ## Create final image
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine@sha256:ca5fcc45a7632e09463199812ed63c240148ddd2a2bffacfd5e20252ad0c8f90 AS base
 # install cultures (same approach as Alpine SDK image)
 RUN apk add --no-cache icu-libs icu-data-full tzdata
 # disable the invariant mode (set in base image)
@@ -49,9 +49,16 @@ ENV Database__Type "Sqlite"
 ENV Database__ConnectionString "Data Source=/data/db/bagest.db"
 LABEL org.opencontainers.image.source="https://github.com/BeerSolutions/BaGest"
 # copy default folders
-COPY --from=publish /data /data
+# owned by the non-root `app` user so a fresh (anonymous or named) volume is writable
+COPY --from=publish --chown=app:app /data /data
 # copy the published app
 WORKDIR /app
 COPY --from=publish /app .
+
+# the base image listens on 8080 (ASPNETCORE_HTTP_PORTS) and ships the unprivileged `app` user
+EXPOSE 8080
+USER app
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD wget -qO /dev/null http://127.0.0.1:8080/health || exit 1
 
 ENTRYPOINT ["dotnet", "BaGest.dll"]
