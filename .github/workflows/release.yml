@@ -51,7 +51,6 @@ jobs:
       contents: write
     env:
       RELEASE_VERSION: ${{ needs.version.outputs.RELEASE_VERSION }}
-      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v7
       - name: Setup .NET
@@ -61,14 +60,16 @@ jobs:
       - name: Publish
         run: |
           dotnet publish src/BaGest --configuration Release --output artifacts --property:Version="$RELEASE_VERSION"
-          echo "${{ github.sha }}" > artifacts/ReleaseSha.txt
+          echo "$GITHUB_SHA" > artifacts/ReleaseSha.txt
           7z a -tzip "bagest-$RELEASE_VERSION.zip" ./artifacts/*
       - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           prerelease=""
           if [[ "$RELEASE_VERSION" == *-* ]]; then prerelease="--prerelease"; fi
-          gh release create "${{ github.ref_name }}" "bagest-$RELEASE_VERSION.zip" \
-            --repo "${{ github.repository }}" --title "$RELEASE_VERSION" --generate-notes $prerelease
+          gh release create "$GITHUB_REF_NAME" "bagest-$RELEASE_VERSION.zip" \
+            --repo "$GITHUB_REPOSITORY" --title "$RELEASE_VERSION" --generate-notes $prerelease
 
   # Requires repository variable PUBLISH_NUGET=true and secret NUGET_API_KEY.
   release_packages:
@@ -156,14 +157,14 @@ jobs:
       - name: Install chart releaser
         run: |
           curl -sSL "https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_linux_amd64.tar.gz" \
-            | tar zxf - -C /usr/local/bin cr
+            | sudo tar zxf - -C /usr/local/bin cr
       - name: Package chart
         run: |
           helm dependency update "$CHART_DIR"
           cr package "$CHART_DIR" --package-path .cr-release-packages
       - name: Upload packages
         run: |
-          cr upload --commit "${{ github.sha }}" --git-repo "${CHART_REPO#*/}" --owner "${CHART_REPO%%/*}" \
+          cr upload --commit "$CHART_REPO_BRANCH" --git-repo "${CHART_REPO#*/}" --owner "${CHART_REPO%%/*}" \
             --token "$CR_TOKEN" --package-path .cr-release-packages --skip-existing
       - name: Update charts index
         run: |
