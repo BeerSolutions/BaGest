@@ -75,6 +75,16 @@ public class PackagePublishController : Controller
                     HttpContext.Response.StatusCode = 409;
                     break;
 
+                case PackageIndexingResult.StorageConflict:
+                    HttpContext.Response.StatusCode = 409;
+                    await HttpContext.Response.WriteAsync(
+                        "The package's files cannot be stored because different files already exist in the storage " +
+                        "at the same location, although the package is not in the database. The storage and the database " +
+                        "are probably out of sync (for example, the database was replaced while the storage was kept). " +
+                        "Delete the orphaned files of this package from the storage and push again.",
+                        cancellationToken);
+                    break;
+
                 case PackageIndexingResult.Success:
                     HttpContext.Response.StatusCode = 201;
                     break;

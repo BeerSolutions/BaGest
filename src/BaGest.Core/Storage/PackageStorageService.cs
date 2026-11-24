@@ -58,14 +58,13 @@ public class PackageStorageService : IPackageStorageService
         var result = await _storage.PutAsync(packagePath, packageStream, PackageContentType, cancellationToken);
         if (result == StoragePutResult.Conflict)
         {
-            // TODO: This should be returned gracefully with an enum.
-            _logger.LogInformation(
+            _logger.LogWarning(
                 "Could not store package {PackageId} {PackageVersion} at {Path} due to conflict",
                 lowercasedId,
                 lowercasedNormalizedVersion,
                 packagePath);
 
-            throw new InvalidOperationException($"Failed to store package {lowercasedId} {lowercasedNormalizedVersion} due to conflict");
+            throw new PackageStorageConflictException(lowercasedId, lowercasedNormalizedVersion, packagePath);
         }
 
         // Store the package's nuspec.
@@ -78,14 +77,13 @@ public class PackageStorageService : IPackageStorageService
         result = await _storage.PutAsync(nuspecPath, nuspecStream, NuspecContentType, cancellationToken);
         if (result == StoragePutResult.Conflict)
         {
-            // TODO: This should be returned gracefully with an enum.
-            _logger.LogInformation(
+            _logger.LogWarning(
                 "Could not store package {PackageId} {PackageVersion} nuspec at {Path} due to conflict",
                 lowercasedId,
                 lowercasedNormalizedVersion,
                 nuspecPath);
 
-            throw new InvalidOperationException($"Failed to store package {lowercasedId} {lowercasedNormalizedVersion} nuspec due to conflict");
+            throw new PackageStorageConflictException(lowercasedId, lowercasedNormalizedVersion, nuspecPath);
         }
 
         // Store the package's readme, if one exists.
@@ -100,14 +98,13 @@ public class PackageStorageService : IPackageStorageService
             result = await _storage.PutAsync(readmePath, readmeStream, ReadmeContentType, cancellationToken);
             if (result == StoragePutResult.Conflict)
             {
-                // TODO: This should be returned gracefully with an enum.
-                _logger.LogInformation(
+                _logger.LogWarning(
                     "Could not store package {PackageId} {PackageVersion} readme at {Path} due to conflict",
                     lowercasedId,
                     lowercasedNormalizedVersion,
                     readmePath);
 
-                throw new InvalidOperationException($"Failed to store package {lowercasedId} {lowercasedNormalizedVersion} readme due to conflict");
+                throw new PackageStorageConflictException(lowercasedId, lowercasedNormalizedVersion, readmePath);
             }
         }
 
@@ -123,14 +120,13 @@ public class PackageStorageService : IPackageStorageService
             result = await _storage.PutAsync(iconPath, iconStream, IconContentType, cancellationToken);
             if (result == StoragePutResult.Conflict)
             {
-                // TODO: This should be returned gracefully with an enum.
-                _logger.LogInformation(
+                _logger.LogWarning(
                     "Could not store package {PackageId} {PackageVersion} icon at {Path} due to conflict",
                     lowercasedId,
                     lowercasedNormalizedVersion,
                     iconPath);
 
-                throw new InvalidOperationException($"Failed to store package {lowercasedId} {lowercasedNormalizedVersion} icon");
+                throw new PackageStorageConflictException(lowercasedId, lowercasedNormalizedVersion, iconPath);
             }
         }
 

@@ -144,6 +144,48 @@ public class PackageIndexingServiceInMemoryTests
     }
 
     [Fact]
+    public async Task IndexIMAsync_WhenStorageHoldsDifferentFileForUnknownPackage_ReturnsStorageConflict()
+    {
+        // Arrange: the storage already contains a file at the package's path, but the database has no entry.
+        var storage = new Mock<IStorageService>();
+        storage
+            .Setup(s => s.PutAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<string>(), default))
+            .ReturnsAsync(StoragePutResult.Conflict);
+
+        var target = new PackageIndexingService(
+            _packages,
+            new PackageStorageService(storage.Object, Mock.Of<ILogger<PackageStorageService>>()),
+            _deleter,
+            _search.Object,
+            _time.Object,
+            Mock.Of<IOptionsSnapshot<BaGestOptions>>(o => o.Value == _options),
+            Mock.Of<IOptionsSnapshot<RetentionOptions>>(o => o.Value == _retentionOptions),
+            Mock.Of<ILogger<PackageIndexingService>>());
+
+        var builder = new PackageBuilder
+        {
+            Id = "bagest-test",
+            Version = NuGetVersion.Parse("1.0.0"),
+            Description = "Test Description",
+        };
+        builder.Authors.Add("Test Author");
+        builder.Files.Add(new PhysicalPackageFile
+        {
+            SourcePath = GetType().Assembly.Location,
+            TargetPath = "lib/Test.dll"
+        });
+        var stream = new MemoryStream();
+        builder.Save(stream);
+
+        // Act
+        var result = await target.IndexAsync(stream, default);
+
+        // Assert
+        Assert.Equal(PackageIndexingResult.StorageConflict, result);
+        Assert.False(await _packages.ExistsAsync("bagest-test", NuGetVersion.Parse("1.0.0"), default));
+    }
+
+    [Fact]
     public async Task IndexIMAsync_WhenPackageAlreadyExists_AndOverwriteAllowed_IndexesPackage()
     {
         // Arrange
