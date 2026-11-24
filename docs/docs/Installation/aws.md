@@ -38,7 +38,7 @@ Update the `appsettings.json` file with those:
 
 #### S3-compatible object storage
 
-You can use any other S3-compatible storage service, as long as it's compatible with Amazon AWS S3. Since the URL for services other than Amazon AWS will change, you need to provide this Service URL instead of the Region. For example:
+You can use any other S3-compatible storage service, as long as it's compatible with Amazon AWS S3. Since the URL for services other than Amazon AWS will change, you need to provide this Service URL as the `Endpoint`. For example:
 
 ```json
 {
@@ -56,7 +56,7 @@ You can use any other S3-compatible storage service, as long as it's compatible 
 }
 ```
 
-Note: to avoid errors, only one of `Region` or `Endpoint` setting can be set at the same time.
+At least one of `Region` or `Endpoint` must be set. When both are set, `Endpoint` is used to reach the service and `Region` is used to sign requests, which some S3-compatible services require.
 
 If your S3-compatible service (such as a local [MinIO](https://github.com/minio/minio) instance) does not support virtual-hosted-style addressing, set `ForcePathStyle` to `true` so the bucket name is sent as part of the URL path instead of the host name.
 
@@ -76,6 +76,8 @@ If your S3-compatible service (such as a local [MinIO](https://github.com/minio/
     ...
 }
 ```
+
+Services that do not support chunked payload signing (`aws-chunked` uploads) can be used by setting `UseChunkEncoding` to `false`. It defaults to `true`.
 
 #### Known compatible services
 

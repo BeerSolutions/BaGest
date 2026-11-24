@@ -25,6 +25,12 @@ public class S3StorageOptions : IValidatableObject
     /// </summary>
     public bool ForcePathStyle { get; set; }
 
+    /// <summary>
+    /// Whether uploads use chunked payload signing (aws-chunked). Turn this off for
+    /// S3-compatible services that do not support it.
+    /// </summary>
+    public bool UseChunkEncoding { get; set; } = true;
+
     [Required]
     public string Bucket { get; set; }
 
@@ -36,14 +42,7 @@ public class S3StorageOptions : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (Endpoint != null && !string.IsNullOrEmpty(Region))
-        {
-            yield return new ValidationResult(
-                $"Only one of S3 {nameof(Region)} or {nameof(Endpoint)} configuration can be set, but not both.",
-                new[] { nameof(Region), nameof(Endpoint) });
-        }
-
-        if(Endpoint != null && !Endpoint.IsAbsoluteUri)
+        if (Endpoint != null && !Endpoint.IsAbsoluteUri)
         {
             yield return new ValidationResult(
                 $"The S3 {nameof(Endpoint)} must be an absolute URI.",

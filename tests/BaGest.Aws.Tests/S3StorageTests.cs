@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -30,6 +33,17 @@ public sealed class RequiresS3ServiceFactAttribute : FactAttribute
     }
 }
 
+public sealed class RequiresS3ServiceTheoryAttribute : TheoryAttribute
+{
+    public RequiresS3ServiceTheoryAttribute()
+    {
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(RequiresS3ServiceFactAttribute.EndpointVariable)))
+        {
+            Skip = $"Set {RequiresS3ServiceFactAttribute.EndpointVariable}, {RequiresS3ServiceFactAttribute.AccessKeyVariable} and {RequiresS3ServiceFactAttribute.SecretKeyVariable} (e.g. for MinIO) to run.";
+        }
+    }
+}
+
 public class S3StorageTests
 {
     [Theory]
@@ -49,6 +63,51 @@ public class S3StorageTests
         Assert.Equal("http://localhost:9000/", config.ServiceURL);
     }
 
+    [Fact]
+    public void RegionIsUsedForSigningWhenAnEndpointIsAlsoSet()
+    {
+        var options = new S3StorageOptions
+        {
+            Endpoint = new Uri("http://localhost:9000"),
+            Region = "eu-west-1",
+        };
+
+        var config = AwsApplicationExtensions.CreateS3Config(options);
+
+        Assert.Equal("eu-west-1", config.AuthenticationRegion);
+        Assert.Equal("http://localhost:9000/", config.ServiceURL);
+    }
+
+    [Fact]
+    public void AuthenticationRegionIsNotSetWithoutARegion()
+    {
+        var options = new S3StorageOptions { Endpoint = new Uri("http://localhost:9000") };
+
+        Assert.Null(AwsApplicationExtensions.CreateS3Config(options).AuthenticationRegion);
+    }
+
+    [Fact]
+    public void EndpointAndRegionTogetherAreValid()
+    {
+        var options = new S3StorageOptions
+        {
+            Endpoint = new Uri("http://localhost:9000"),
+            Region = "eu-west-1",
+            Bucket = "bucket",
+        };
+
+        var results = new List<ValidationResult>();
+        var valid = Validator.TryValidateObject(options, new ValidationContext(options), results, validateAllProperties: true);
+
+        Assert.True(valid, string.Join("; ", results.Select(r => r.ErrorMessage)));
+    }
+
+    [Fact]
+    public void ChunkEncodingIsEnabledByDefault()
+    {
+        Assert.True(new S3StorageOptions().UseChunkEncoding);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -61,8 +120,10 @@ public class S3StorageTests
         Assert.Equal(forcePathStyle, config.ForcePathStyle);
     }
 
-    [RequiresS3ServiceFact]
-    public async Task PutAndGetRoundTripWithForcePathStyle()
+    [RequiresS3ServiceTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task PutAndGetRoundTripWithForcePathStyle(bool useChunkEncoding)
     {
         var endpoint = Environment.GetEnvironmentVariable(RequiresS3ServiceFactAttribute.EndpointVariable);
         var credentials = new BasicAWSCredentials(
@@ -75,6 +136,7 @@ public class S3StorageTests
             ForcePathStyle = true,
             Bucket = "bagest-" + Guid.NewGuid().ToString("N"),
             Prefix = "packages",
+            UseChunkEncoding = useChunkEncoding,
         };
 
         using var client = new AmazonS3Client(credentials, AwsApplicationExtensions.CreateS3Config(options));

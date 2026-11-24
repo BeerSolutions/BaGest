@@ -82,7 +82,9 @@ public static class AwsApplicationExtensions
             ? new AmazonS3Config
             {
                 ServiceURL = options.Endpoint.AbsoluteUri,
-                ForcePathStyle = options.ForcePathStyle
+                ForcePathStyle = options.ForcePathStyle,
+                // Used for request signing only; lets services that validate the region work.
+                AuthenticationRegion = string.IsNullOrEmpty(options.Region) ? null : options.Region
             }
             : new AmazonS3Config
             {
