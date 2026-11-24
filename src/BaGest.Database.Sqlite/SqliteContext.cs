@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BaGest.Core;
@@ -16,6 +18,12 @@ public class SqliteContext : AbstractContext<SqliteContext>
     /// The Sqlite error code for when a unique constraint is violated.
     /// </summary>
     private const int SqliteUniqueConstraintViolationErrorCode = 19;
+
+    /// <summary>
+    /// The journal modes supported by SQLite. The value is interpolated into a PRAGMA statement
+    /// (which cannot be parameterized), so it must be one of these.
+    /// </summary>
+    private static readonly string[] SupportedJournalModes = ["DELETE", "TRUNCATE", "PERSIST", "MEMORY", "WAL", "OFF"];
 
     public SqliteContext(DbContextOptions<SqliteContext> efOptions, IOptionsSnapshot<BaGestOptions> bagestOptions)
         : base(efOptions)
@@ -56,6 +64,8 @@ public class SqliteContext : AbstractContext<SqliteContext>
 
     public override async Task RunMigrationsAsync(CancellationToken cancellationToken)
     {
+        var journalMode = GetConfiguredJournalMode();
+
         if (Database.GetDbConnection() is SqliteConnection connection)
         {
             /* Create the folder of the Sqlite blob if it does not exist. */
@@ -63,6 +73,35 @@ public class SqliteContext : AbstractContext<SqliteContext>
         }
 
         await base.RunMigrationsAsync(cancellationToken);
+
+        if (journalMode != null)
+        {
+            // The journal mode is a property of the database file, so it is applied after the
+            // database has been created and migrated. The name was validated against a fixed list.
+#pragma warning disable EF1002
+            await Database.ExecuteSqlRawAsync($"PRAGMA journal_mode={journalMode};", cancellationToken);
+#pragma warning restore EF1002
+        }
+    }
+
+    /// <summary>
+    /// Gets the validated, upper-cased value of the Database::JournalMode config, or null if it is not set.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The configured journal mode is not supported by SQLite.</exception>
+    private string GetConfiguredJournalMode()
+    {
+        if (string.IsNullOrWhiteSpace(_bagestOptions.JournalMode)) return null;
+
+        var journalMode = _bagestOptions.JournalMode.Trim().ToUpperInvariant();
+
+        if (!SupportedJournalModes.Contains(journalMode))
+        {
+            throw new InvalidOperationException(
+                $"Unsupported Database:JournalMode '{_bagestOptions.JournalMode}'. " +
+                $"Supported values: {string.Join(", ", SupportedJournalModes)}.");
+        }
+
+        return journalMode;
     }
 
     /// <summary>

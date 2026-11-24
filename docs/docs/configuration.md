@@ -329,6 +329,33 @@ There are two settings related to the database configuration:
 
 - **Type**: The database engine to use, this should be one of the strings from the above list such as `PostgreSql` or `Sqlite`.
 - **ConnectionString**: The connection string for your database engine.
+- **JournalMode** (optional, SQLite only): The [journal mode](https://www.sqlite.org/pragma.html#pragma_journal_mode) to apply to the database on startup. See below.
+
+### SQLite journal mode
+
+By default BaGest leaves the journal mode of the SQLite database file untouched. A database file created by a current version of BaGest is created in `WAL` mode by Entity Framework Core, while a file created by an older BaGet/BaGest version usually uses `DELETE`. To set the mode explicitly, use the `Database:JournalMode` setting:
+
+```json
+{
+    ...
+
+    "Database": {
+        "Type": "Sqlite",
+        "ConnectionString": "Data Source=bagest.db",
+        "JournalMode": "WAL"
+    },
+
+    ...
+}
+```
+
+The value is one of `DELETE`, `TRUNCATE`, `PERSIST`, `MEMORY`, `WAL` or `OFF` (case-insensitive). BaGest runs `PRAGMA journal_mode` with this value after the database migrations on every startup and refuses to start if the value is not supported. The environment variable is `Database__JournalMode`.
+
+:::warning
+
+`WAL` mode does not work reliably when the database file is on a network filesystem, because it needs shared memory between the processes accessing the database. In that case keep the database on local storage, or use another database engine. Also note that in `WAL` mode SQLite keeps `-wal` and `-shm` files next to the database file; include them when you back up or copy the database.
+
+:::
 
 ## IIS server options
 
