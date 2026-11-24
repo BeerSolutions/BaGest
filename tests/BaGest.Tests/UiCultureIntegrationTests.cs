@@ -11,6 +11,9 @@ namespace BaGest.Tests;
 
 public class UiCultureIntegrationTests : IDisposable
 {
+    // Same expression as the test host uses to pin "now" (see BaGestApplication).
+    private static readonly DateTime PublishedDate = DateTime.Parse("2020-01-01T00:00:00.000Z");
+
     private readonly BaGestApplication _app;
     private readonly HttpClient _client;
     private readonly Stream _packageStream;
@@ -33,7 +36,7 @@ public class UiCultureIntegrationTests : IDisposable
     {
         await _app.AddPackageAsync(_packageStream);
 
-        var expected = $"<td>{new DateTime(2020, 1, 1).ToString("d", CultureInfo.GetCultureInfo(acceptLanguage))}</td>";
+        var expected = $"<td>{PublishedDate.ToString("d", CultureInfo.GetCultureInfo(acceptLanguage))}</td>";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, "packages/TestData");
         request.Headers.TryAddWithoutValidation("Accept-Language", acceptLanguage);
@@ -53,7 +56,7 @@ public class UiCultureIntegrationTests : IDisposable
         var content = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains($"<td>{new DateTime(2020, 1, 1).ToShortDateString()}</td>", content);
+        Assert.Contains($"<td>{PublishedDate.ToShortDateString()}</td>", content);
     }
 
     public void Dispose()
