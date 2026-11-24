@@ -2,7 +2,7 @@ ARG Version=1.0.0
 
 # Base images are pinned to a tag AND a multi-arch digest for reproducible builds.
 # Refresh both together (e.g. via Dependabot/Renovate) to pick up security patches.
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine@sha256:19a9b6214e3e78ffabc3469de57aeccb4d388bacb14de1e98533e7f94c34f4b3 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine@sha256:0294f285d062afacc8b5f6d7febb0cd4ee879320e5585fa15f2f4ebf1feb9ba7 AS build
 ARG Version
 ARG TARGETARCH
 WORKDIR /src
@@ -37,7 +37,7 @@ RUN dotnet publish BaGest \
 RUN mkdir -p /data/packages /data/symbols /data/db
 
 ## Create final image
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine@sha256:ca5fcc45a7632e09463199812ed63c240148ddd2a2bffacfd5e20252ad0c8f90 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine@sha256:21c3f9798416cba4c0576a947c286231cb71ea2884896cb968253f5c9668f930 AS base
 # install cultures (same approach as Alpine SDK image)
 RUN apk add --no-cache icu-libs icu-data-full tzdata
 # disable the invariant mode (set in base image)
