@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -417,5 +418,36 @@ public class PackageDeletionServiceTests
         // Assert
         Assert.Equal(2, deleted);
         Assert.Equal([new NuGetVersion("1.0.0-beta.1"), new NuGetVersion("1.0.0-beta.2")], deletedVersions);
+    }
+
+    [Fact]
+    public async Task WhenAddOldPackage_DoesNotDeleteIndexedPackage()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var deletedVersions = new List<NuGetVersion>();
+        _packages
+            .Setup(p => p.FindAsync(PackageId, true, cancellationToken))
+            .ReturnsAsync([
+                new Package { Id = PackageId, Version = new NuGetVersion("1.0.0") },
+                new Package { Id = PackageId, Version = new NuGetVersion("2.0.0") },
+                new Package { Id = PackageId, Version = new NuGetVersion("3.0.0") },
+            ]);
+        _storage
+            .Setup(s => s.DeleteAsync(PackageId, It.IsAny<NuGetVersion>(), cancellationToken))
+            .Returns(Task.CompletedTask);
+        _packages
+            .Setup(p => p.HardDeletePackageAsync(PackageId, It.IsAny<NuGetVersion>(), cancellationToken))
+            .Callback<string, NuGetVersion, CancellationToken>((_, v, _) => deletedVersions.Add(v))
+            .ReturnsAsync(true);
+
+        // Act - e.g. an old version mirrored from an upstream feed
+        var deleted = await _target.DeleteOldVersionsAsync(
+            new Package { Id = PackageId, Version = new NuGetVersion("1.0.0"), IsPrerelease = false },
+            maxMajor: 1, maxMinor: null, maxPatch: null, maxPrerelease: null, cancellationToken);
+
+        // Assert
+        Assert.Equal(1, deleted);
+        Assert.Equal(new NuGetVersion("2.0.0"), Assert.Single(deletedVersions));
     }
 }
