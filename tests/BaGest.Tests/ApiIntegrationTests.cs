@@ -436,6 +436,7 @@ public class ApiIntegrationTests : IDisposable
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(reason, body);
+        Assert.Equal(reason, response.ReasonPhrase);
     }
 
     public void Dispose()

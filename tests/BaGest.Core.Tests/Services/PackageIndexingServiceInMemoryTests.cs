@@ -70,6 +70,8 @@ public class PackageIndexingServiceInMemoryTests
     [InlineData("<authors>Test Author</authors><description>Test Description</description><dependencies><group targetFramework=\"net8.0\"><dependency id=\"Dependency\" version=\"[1.0\" /></group></dependencies>", PackageIndexingResult.InvalidDependencyVersionRange)]
     [InlineData("<authors>Test Author</authors>", PackageIndexingResult.MissingDescription)]
     [InlineData("<authors>Test Author</authors><description></description>", PackageIndexingResult.MissingDescription)]
+    [InlineData("<authors>Test Author</authors><description> </description>", PackageIndexingResult.MissingDescription)]
+    [InlineData("<authors>Test Author</authors><Description>Test Description</Description>", PackageIndexingResult.Success)]
     [InlineData("<description>Test Description</description>", PackageIndexingResult.Success)]
     [InlineData("<authors> </authors><description>Test Description</description>", PackageIndexingResult.Success)]
     [InlineData("<authors>Test Author</authors><description>Test Description</description>", PackageIndexingResult.Success)]
