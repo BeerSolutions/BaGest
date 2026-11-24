@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
+    <!-- Pomelo 9.0.0 pulls MySqlConnector 2.4.0, which is affected by GHSA-473q-m89c-ghf8 (fixed in 2.6.1). -->
+    <PackageReference Include="MySqlConnector" />
   </ItemGroup>
 
   <ItemGroup>
