@@ -83,6 +83,7 @@ public static partial class DependencyInjectionExtensions
         services.TryAddSingleton<NuGetClient>();
         services.TryAddSingleton<NullSearchIndexer>();
         services.TryAddSingleton<NullSearchService>();
+        services.TryAddSingleton<PackageMirrorLock>();
         services.TryAddSingleton<RegistrationBuilder>();
         services.TryAddSingleton<SystemTime>();
         services.TryAddSingleton<ValidateStartupOptions>();

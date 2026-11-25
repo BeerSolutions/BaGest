@@ -30,6 +30,10 @@ public class PackageDatabase : IPackageDatabase
         catch (DbUpdateException e)
             when (_context.IsUniqueConstraintViolationException(e))
         {
+            // The rejected package stays tracked as added, so the next save on this context
+            // would try to insert it again.
+            Detach(package);
+
             return PackageAddResult.PackageAlreadyExists;
         }
     }
@@ -121,6 +125,24 @@ public class PackageDatabase : IPackageDatabase
         await _context.SaveChangesAsync(cancellationToken);
 
         return true;
+    }
+
+    private void Detach(Package package)
+    {
+        var entry = _context.Packages.Entry(package);
+
+        var related = entry.Collections
+            .SelectMany(navigation => navigation.CurrentValue?.Cast<object>() ?? [])
+            .ToList();
+
+        // The package goes first: detaching a related entity while the package is still
+        // tracked would remove that entity from the package's collections.
+        entry.State = EntityState.Detached;
+
+        foreach (var entity in related)
+        {
+            entry.Context.Entry(entity).State = EntityState.Detached;
+        }
     }
 
     private async Task<bool> TryUpdatePackageAsync(

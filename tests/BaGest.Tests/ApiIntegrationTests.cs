@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -411,9 +412,55 @@ public class ApiIntegrationTests : IDisposable
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task PushReturnsCreated()
+    {
+        using var content = new StreamContent(_packageStream);
+        using var response = await _client.PutAsync("api/v2/package", content);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(
+        "<authors>Test author</authors><description>Test description</description><dependencies><dependency id=\"Dependency\" version=\"[1.0\" /></dependencies>",
+        "A dependency has an invalid version range")]
+    [InlineData(
+        "<authors>Test author</authors>",
+        "The package must have a description")]
+    public async Task PushOfInvalidManifestReturnsBadRequest(string metadata, string reason)
+    {
+        using var content = new StreamContent(CreatePackage(metadata));
+        using var response = await _client.PutAsync("api/v2/package", content);
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(reason, body);
+        Assert.Equal(reason, response.ReasonPhrase);
+    }
+
     public void Dispose()
     {
         _app.Dispose();
         _client.Dispose();
+    }
+
+    private static MemoryStream CreatePackage(string metadata)
+    {
+        var nuspec =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+            + "<package xmlns=\"http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd\">"
+            + "<metadata><id>Invalid.Manifest</id><version>1.0.0</version>" + metadata + "</metadata>"
+            + "</package>";
+
+        var stream = new MemoryStream();
+        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            using var writer = new StreamWriter(archive.CreateEntry("Invalid.Manifest.nuspec").Open());
+            writer.Write(nuspec);
+        }
+
+        stream.Position = 0;
+        return stream;
     }
 }

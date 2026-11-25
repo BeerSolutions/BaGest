@@ -1,15 +1,19 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NuGet.Packaging;
+using NuGet.Packaging.Core;
 
 namespace BaGest.Core;
 
 public class PackageIndexingService : IPackageIndexingService
 {
+    private const string DescriptionElement = "description";
+
     private readonly IPackageDatabase _packages;
     private readonly IPackageStorageService _storage;
     private readonly ISearchIndexer _search;
@@ -61,6 +65,17 @@ public class PackageIndexingService : IPackageIndexingService
         try
         {
             using var packageReader = new PackageArchiveReader(packageStream, leaveStreamOpen: true);
+
+            // Packages cached from an upstream feed were already accepted there, so only pushes are validated.
+            if (cacheFeedUrl == null)
+            {
+                var validationResult = ValidateManifest(packageReader.NuspecReader);
+                if (validationResult != PackageIndexingResult.Success)
+                {
+                    return validationResult;
+                }
+            }
+
             package = packageReader.GetPackageMetadata();
             package.CachedFrom = cacheFeedUrl;
             package.Published = _time.UtcNow;
@@ -212,5 +227,47 @@ public class PackageIndexingService : IPackageIndexingService
             package.NormalizedVersionString);
 
         return PackageIndexingResult.Success;
+    }
+
+    // Mirrors what nuget.org rejects on push: a manifest without a description, and dependency
+    // version ranges that do not parse strictly. nuget.org accepts a manifest without authors,
+    // so authors are not required here either.
+    private PackageIndexingResult ValidateManifest(NuspecReader nuspec)
+    {
+        if (!HasDescription(nuspec))
+        {
+            _logger.LogWarning(
+                "Pushed package {PackageId} {PackageVersion} has no description",
+                nuspec.GetId(),
+                nuspec.GetVersion());
+
+            return PackageIndexingResult.MissingDescription;
+        }
+
+        try
+        {
+            _ = nuspec.GetDependencyGroups(useStrictVersionCheck: true).ToList();
+        }
+        catch (PackagingException e)
+        {
+            _logger.LogWarning(
+                e,
+                "Pushed package {PackageId} {PackageVersion} has a dependency with an invalid version range",
+                nuspec.GetId(),
+                nuspec.GetVersion());
+
+            return PackageIndexingResult.InvalidDependencyVersionRange;
+        }
+
+        return PackageIndexingResult.Success;
+    }
+
+    // nuget.org treats the description as missing when the manifest metadata has no description
+    // entry, which is also the case for an empty description element.
+    private static bool HasDescription(NuspecReader nuspec)
+    {
+        return nuspec
+            .GetMetadata()
+            .Any(entry => string.Equals(entry.Key, DescriptionElement, StringComparison.OrdinalIgnoreCase));
     }
 }

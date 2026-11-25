@@ -13,17 +13,20 @@ public class PackageService : IPackageService
     private readonly IPackageDatabase _db;
     private readonly IUpstreamClient _upstream;
     private readonly IPackageIndexingService _indexer;
+    private readonly PackageMirrorLock _mirrorLock;
     private readonly ILogger<PackageService> _logger;
 
     public PackageService(
         IPackageDatabase db,
         IUpstreamClient upstream,
         IPackageIndexingService indexer,
+        PackageMirrorLock mirrorLock,
         ILogger<PackageService> logger)
     {
         _db = db ?? throw new ArgumentNullException(nameof(db));
         _upstream = upstream ?? throw new ArgumentNullException(nameof(upstream));
         _indexer = indexer ?? throw new ArgumentNullException(nameof(indexer));
+        _mirrorLock = mirrorLock ?? throw new ArgumentNullException(nameof(mirrorLock));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -100,6 +103,16 @@ public class PackageService : IPackageService
             return true;
         }
 
+        // Concurrent requests for the same package wait here, so only one of them downloads,
+        // stores and indexes it.
+        using var mirrorLock = await _mirrorLock.AcquireAsync(id, version, cancellationToken);
+
+        // Another request may have mirrored the package while this one waited for the lock.
+        if (await _db.ExistsAsync(id, version, cancellationToken))
+        {
+            return true;
+        }
+
         var cacheFeedUrl = _upstream.GetServiceIndexUrl();
 
         _logger.LogInformation(
@@ -133,7 +146,10 @@ public class PackageService : IPackageService
                 version,
                 result);
 
-            return result == PackageIndexingResult.Success;
+            // PackageAlreadyExists means the package is stored locally, for example by another
+            // BaGest instance sharing the database, so it is available rather than missing.
+            return result == PackageIndexingResult.Success
+                || result == PackageIndexingResult.PackageAlreadyExists;
         }
         catch (Exception e)
         {
