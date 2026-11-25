@@ -71,6 +71,7 @@ public class RegistrationBuilder
                 PackageId = package.Id,
                 Version = package.Version.ToFullString(),
                 Authors = string.Join(", ", package.Authors),
+                Deprecation = ToDeprecationOrNull(package),
                 Description = package.Description,
                 Downloads = package.Downloads,
                 HasReadme = package.HasReadme,
@@ -95,6 +96,27 @@ public class RegistrationBuilder
                 DependencyGroups = ToDependencyGroups(package)
             },
         };
+
+    private static PackageDeprecation ToDeprecationOrNull(Package package)
+    {
+        if (!package.IsDeprecated)
+        {
+            return null;
+        }
+
+        return new PackageDeprecation
+        {
+            Reasons = package.DeprecationReasons.ToProtocolValues(),
+            Message = package.DeprecationMessage,
+            AlternatePackage = package.DeprecationAlternatePackageId == null
+                ? null
+                : new AlternatePackage
+                {
+                    Id = package.DeprecationAlternatePackageId,
+                    Range = package.DeprecationAlternatePackageVersionRange ?? PackageDeprecationDetails.AnyVersionRange,
+                },
+        };
+    }
 
     private static List<DependencyGroupItem> ToDependencyGroups(Package package)
     {

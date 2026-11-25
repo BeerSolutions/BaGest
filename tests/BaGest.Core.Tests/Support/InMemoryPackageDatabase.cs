@@ -58,4 +58,14 @@ public class InMemoryPackageDatabase : IPackageDatabase
     {
         return Task.FromResult(true);
     }
+
+    public Task<bool> DeprecatePackageAsync(string id, NuGetVersion version, PackageDeprecationDetails deprecation, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UndeprecatePackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

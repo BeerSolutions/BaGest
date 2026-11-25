@@ -39,6 +39,10 @@ namespace BaGest.Azure
         public string RepositoryType { get; set; }
 
         public string Tags { get; set; }
+        public int DeprecationReasons { get; set; }
+        public string DeprecationMessage { get; set; }
+        public string DeprecationAlternatePackageId { get; set; }
+        public string DeprecationAlternatePackageVersionRange { get; set; }
         public string Dependencies { get; set; }
         public string PackageTypes { get; set; }
         public string TargetFrameworks { get; set; }

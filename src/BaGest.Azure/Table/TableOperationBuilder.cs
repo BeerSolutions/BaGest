@@ -49,7 +49,20 @@ namespace BaGest.Azure
                 TargetFrameworks = SerializeList(package.TargetFrameworks, f => f.Moniker)
             };
 
+            SetDeprecation(entity, package);
+
             return entity;
+        }
+
+        public static void SetDeprecation(PackageEntity entity, Package package)
+        {
+            ArgumentNullException.ThrowIfNull(entity);
+            ArgumentNullException.ThrowIfNull(package);
+
+            entity.DeprecationReasons = (int)package.DeprecationReasons;
+            entity.DeprecationMessage = package.DeprecationMessage;
+            entity.DeprecationAlternatePackageId = package.DeprecationAlternatePackageId;
+            entity.DeprecationAlternatePackageVersionRange = package.DeprecationAlternatePackageVersionRange;
         }
 
         private static string SerializeList<TIn, TOut>(IEnumerable<TIn> objects, Func<TIn, TOut> map)

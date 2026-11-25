@@ -101,6 +101,22 @@ public class PackageDatabase : IPackageDatabase
         return TryUpdatePackageAsync(id, version, p => p.Listed = true, cancellationToken);
     }
 
+    public Task<bool> DeprecatePackageAsync(
+        string id,
+        NuGetVersion version,
+        PackageDeprecationDetails deprecation,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(deprecation);
+
+        return TryUpdatePackageAsync(id, version, p => p.Deprecate(deprecation), cancellationToken);
+    }
+
+    public Task<bool> UndeprecatePackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
+    {
+        return TryUpdatePackageAsync(id, version, p => p.Undeprecate(), cancellationToken);
+    }
+
     public async Task AddDownloadAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
     {
         await TryUpdatePackageAsync(id, version, p => p.Downloads += 1, cancellationToken);

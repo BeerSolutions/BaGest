@@ -185,6 +185,43 @@ h4 {
   border-color: var(--alert-warning-border-color);
 }
 
+.deprecation-banner {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.deprecation-header {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.deprecation-header .ms-Icon--Warning {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+.deprecation-summary {
+  font-weight: 600;
+}
+
+.deprecation-message {
+  margin-top: 2px;
+  white-space: pre-line;
+}
+
+.deprecation-alt {
+  margin-left: 32px;
+}
+
+.deprecated-version {
+  color: var(--alert-warning-text-color);
+  margin-left: 4px;
+}
+
 /* Navigation
 -------------------------------------------------- */
 #navbar ul {

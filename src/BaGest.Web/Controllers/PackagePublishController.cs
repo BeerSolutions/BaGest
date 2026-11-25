@@ -154,6 +154,82 @@ public class PackagePublishController : Controller
         }
     }
 
+    [HttpPut]
+    public async Task<IActionResult> Deprecate(
+        string id,
+        string version,
+        [FromBody] DeprecatePackageRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (_options.Value.IsReadOnlyMode)
+        {
+            return Unauthorized();
+        }
+
+        if (!NuGetVersion.TryParse(version, out var nugetVersion))
+        {
+            return NotFound();
+        }
+
+        if (!await _authentication.AuthenticateAsync(Request.GetApiKey(), cancellationToken))
+        {
+            return Unauthorized();
+        }
+
+        if (request == null || !ModelState.IsValid)
+        {
+            return Problem(detail: "The request body must be a JSON deprecation object.", statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (!PackageDeprecationDetails.TryCreate(
+                request.Reasons,
+                request.Message,
+                request.AlternatePackageId,
+                request.AlternatePackageVersionRange,
+                out var deprecation,
+                out var error))
+        {
+            return Problem(detail: error, statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (await _packages.DeprecatePackageAsync(id, nugetVersion, deprecation, cancellationToken))
+        {
+            return NoContent();
+        }
+        else
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Undeprecate(string id, string version, CancellationToken cancellationToken)
+    {
+        if (_options.Value.IsReadOnlyMode)
+        {
+            return Unauthorized();
+        }
+
+        if (!NuGetVersion.TryParse(version, out var nugetVersion))
+        {
+            return NotFound();
+        }
+
+        if (!await _authentication.AuthenticateAsync(Request.GetApiKey(), cancellationToken))
+        {
+            return Unauthorized();
+        }
+
+        if (await _packages.UndeprecatePackageAsync(id, nugetVersion, cancellationToken))
+        {
+            return NoContent();
+        }
+        else
+        {
+            return NotFound();
+        }
+    }
+
     // NuGet clients show the reason phrase of a failed push.
     private async Task RejectAsync(string reason, CancellationToken cancellationToken)
     {

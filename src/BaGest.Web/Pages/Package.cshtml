@@ -35,6 +35,34 @@ else
                 </h1>
             </div>
 
+            @if (Model.Deprecation != null)
+            {
+                <div class="deprecation-banner alert alert-warning" role="alert">
+                    <div class="deprecation-header">
+                        <i class="ms-Icon ms-Icon--Warning" aria-hidden="true"></i>
+                        <div class="deprecation-text">
+                            <div class="deprecation-summary">@Model.Deprecation.Summary</div>
+                            @if (Model.Deprecation.Message != null)
+                            {
+                                <div class="deprecation-message">@Model.Deprecation.Message</div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.Deprecation.AlternatePackageId != null)
+                    {
+                        <div class="deprecation-alt">
+                            <strong>Suggested alternative</strong>:
+                            <a asp-page="Package" asp-route-id="@Model.Deprecation.AlternatePackageId">@Model.Deprecation.AlternatePackageId</a>
+                            @if (Model.Deprecation.AlternatePackageVersionSpec != null)
+                            {
+                                <span class="text-muted">@Model.Deprecation.AlternatePackageVersionSpec</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
             <div class="tabbed-info" x-data="{ tabs: tabs, active: tabs[0] }">
                 <ul class="nav">
                     <template x-for="tab in tabs" :key="tab.name">
@@ -177,7 +205,13 @@ else
                                 var alwaysShow = Json.Serialize(i < DefaultVisibleVersions);
 
                                 <tr class="@(version.Selected ? "bg-info" : "")" x-show="showAll || @alwaysShow">
-                                    <td><a asp-page="Package" asp-route-version="@version.Version">@version.Version.ToNormalizedString()</a></td>
+                                    <td>
+                                        <a asp-page="Package" asp-route-version="@version.Version">@version.Version.ToNormalizedString()</a>
+                                        @if (version.IsDeprecated)
+                                        {
+                                            <i class="ms-Icon ms-Icon--Warning deprecated-version" title="Deprecated" aria-label="Deprecated"></i>
+                                        }
+                                    </td>
                                     <td>@version.Downloads.ToString("N0")</td>
                                     <td>@version.LastUpdated.ToShortDateString()</td>
                                 </tr>
