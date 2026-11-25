@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BaGest.Database.MySql\BaGest.Database.MySql.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xunit.SkippableFact" />
+  </ItemGroup>
+
+</Project>

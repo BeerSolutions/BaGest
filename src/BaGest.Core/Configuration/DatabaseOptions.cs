@@ -15,4 +15,10 @@ public class DatabaseOptions
     /// If not set, the journal mode of the database file is left unchanged.
     /// </summary>
     public string JournalMode { get; set; }
+
+    /// <summary>
+    /// MySQL and MariaDB only: the server version, for example <c>8.4.0-mysql</c> or <c>11.4.0-mariadb</c>.
+    /// When empty, the version is detected once from the server.
+    /// </summary>
+    public string ServerVersion { get; set; }
 }

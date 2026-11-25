@@ -3,6 +3,7 @@ using System;
 using BaGest.Database.MySql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -16,10 +17,12 @@ namespace BaGest.Database.MySql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .UseCollation("utf8mb4_unicode_ci")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            MySqlModelBuilderExtensions.HasCharSet(modelBuilder, "latin1");
+            MySqlModelBuilderExtensions.HasCharSet(modelBuilder, "utf8mb4");
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("BaGest.Core.Package", b =>
                 {
@@ -27,17 +30,19 @@ namespace BaGest.Database.MySql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Key"));
+
                     b.Property<string>("Authors")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CachedFrom")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<long>("Downloads")
                         .HasColumnType("bigint");
@@ -50,7 +55,7 @@ namespace BaGest.Database.MySql.Migrations
 
                     b.Property<string>("IconUrl")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Id")
                         .IsRequired()
@@ -66,7 +71,7 @@ namespace BaGest.Database.MySql.Migrations
 
                     b.Property<string>("LicenseUrl")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("Listed")
                         .HasColumnType("tinyint(1)");
@@ -88,7 +93,7 @@ namespace BaGest.Database.MySql.Migrations
 
                     b.Property<string>("ProjectUrl")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("Published")
                         .HasColumnType("datetime(6)");
@@ -103,7 +108,7 @@ namespace BaGest.Database.MySql.Migrations
 
                     b.Property<string>("RepositoryUrl")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("RequireLicenseAcceptance")
                         .HasColumnType("tinyint(1)");
@@ -118,11 +123,11 @@ namespace BaGest.Database.MySql.Migrations
 
                     b.Property<string>("Summary")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Tags")
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Title")
                         .HasMaxLength(256)
@@ -143,6 +148,8 @@ namespace BaGest.Database.MySql.Migrations
                     b.Property<int>("Key")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Key"));
 
                     b.Property<string>("Id")
                         .HasMaxLength(128)
@@ -174,6 +181,8 @@ namespace BaGest.Database.MySql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Key"));
+
                     b.Property<string>("Name")
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
@@ -199,6 +208,8 @@ namespace BaGest.Database.MySql.Migrations
                     b.Property<int>("Key")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Key"));
 
                     b.Property<string>("Moniker")
                         .HasMaxLength(256)

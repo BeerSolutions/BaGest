@@ -16,4 +16,8 @@
     <ProjectReference Include="..\BaGest.Core\BaGest.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="BaGest.Database.MySql.Tests" />
+  </ItemGroup>
+
 </Project>
