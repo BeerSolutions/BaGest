@@ -2,6 +2,8 @@
 
 BaGest is a lightweight [NuGet] and [symbol] server, written in C#.
 
+It's forked from [BaGetter] for continued development on current .NET.
+
 <p align="center">
   <img width="100%" src="https://user-images.githubusercontent.com/737941/50140219-d8409700-0258-11e9-94c9-dad24d2b48bb.png">
 </p>
@@ -66,11 +68,6 @@ Thanks to everyone who helps to make BaGest better!
   <img src="https://contrib.rocks/image?repo=BeerSolutions/BaGest" />
 </a>
 
-## 🥖 Origin
-
-BaGest continues [BaGetter], a community-driven fork of [BaGet] by Loic Sharma. BaGet laid the foundation of this server, and BaGetter carried it forward with new features and a lively community. Many thanks to Loic Sharma, the BaGetter maintainers and everyone who contributed to either project; their work lives on in BaGest and their copyright notices are preserved in the [LICENSE](LICENSE).
-
-
 [Build status]: https://img.shields.io/github/actions/workflow/status/BeerSolutions/BaGest/main.yml?logo=github&logoColor=fff
 
 [Release]: https://img.shields.io/github/v/release/BeerSolutions/BaGest?include_prereleases&logo=github&logoColor=fff
@@ -83,7 +80,6 @@ BaGest continues [BaGetter], a community-driven fork of [BaGet] by Loic Sharma. 
 [symbol]: https://docs.microsoft.com/en-us/windows/desktop/debug/symbol-servers-and-symbol-stores
 [.NET SDK]: https://www.microsoft.com/net/download
 [Issue]: https://github.com/BeerSolutions/BaGest/issues
-[BaGet]: https://github.com/loic-sharma/BaGet
 [BaGetter]: https://github.com/bagetter/BaGetter
 
 [BaGest's latest release]: https://github.com/BeerSolutions/BaGest/releases
