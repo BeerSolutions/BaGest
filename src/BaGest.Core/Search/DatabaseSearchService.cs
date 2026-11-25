@@ -103,7 +103,7 @@ public class DatabaseSearchService : ISearchService
 
     public async Task<AutocompleteResponse> ListPackageVersionsAsync(VersionsRequest request, CancellationToken cancellationToken)
     {
-        var packageId = request.PackageId.ToLower();
+        var packageId = request.PackageId.ToLowerInvariant();
         var search = _context
             .Packages
             .Where(p => p.Id.ToLower().Equals(packageId));
