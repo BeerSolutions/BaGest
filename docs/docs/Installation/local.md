@@ -7,6 +7,32 @@
 3. Start the service with `dotnet BaGest.dll`
 4. Browse `http://localhost:5000/` in your browser
 
+## Run BaGest as a Windows service
+
+BaGest can run as a Windows service. When started by the Windows service control manager it detects this automatically; on other platforms, and when started from a console, nothing changes.
+
+1. Publish or extract BaGest to a permanent folder, for example `C:\BaGest`
+2. Open an elevated command prompt and create the service (note the space after `binPath=`):
+
+    ```shell
+    sc.exe create BaGest binPath= "C:\BaGest\BaGest.exe" start= auto
+    ```
+
+3. Start the service:
+
+    ```shell
+    sc.exe start BaGest
+    ```
+
+The service uses the application folder as its working directory, so `appsettings.json` is read from the folder that contains `BaGest.exe`. To change the URLs BaGest listens on, set `Kestrel:Endpoints` or `urls` in `appsettings.json`, or the `ASPNETCORE_URLS` environment variable for the service.
+
+To remove the service, stop it and delete it:
+
+```shell
+sc.exe stop BaGest
+sc.exe delete BaGest
+```
+
 ## Configure BaGest
 
 You can modify BaGest's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGest's configuration](../configuration.md) guide.

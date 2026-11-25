@@ -281,6 +281,25 @@ The commands are slightly different when using the Package Manager console in Vi
 dotnet nuget add source "http://localhost:5000/v3/index.json" --name "bagest" --username "username" --password "password"
 ```
 
+### Combining an API key with a private feed
+
+An API key only protects publishing, while the credentials above protect the rest of the feed, including the service index `/v3/index.json`. When both are configured, `dotnet nuget push -s http://localhost:5000/v3/index.json -k NUGET-SERVER-API-KEY ...` fails with `401 (Unauthorized)`: the NuGet client first loads the service index to discover the push endpoint, and that request carries only the API key, not the username and password. This is expected behavior.
+
+There are two ways to push to such a server:
+
+1. Add the feed as a [package source with credentials](#private-feeds) so that NuGet sends them when it loads the service index, and push with the API key as usual:
+
+    ```shell
+    dotnet nuget add source "http://localhost:5000/v3/index.json" --name "bagest" --username "username" --password "password" --store-password-in-clear-text
+    dotnet nuget push -s bagest -k NUGET-SERVER-API-KEY package.1.0.0.nupkg
+    ```
+
+2. Push directly to the publish endpoint `/api/v2/package`, which only requires the API key and skips the service index. Use the full path of a single package, not a wildcard:
+
+    ```shell
+    dotnet nuget push -s http://localhost:5000/api/v2/package -k NUGET-SERVER-API-KEY package.1.0.0.nupkg
+    ```
+
 ## Database configuration
 
 BaGest supports multiple database engines for storing package information:
@@ -329,6 +348,33 @@ There are two settings related to the database configuration:
 
 - **Type**: The database engine to use, this should be one of the strings from the above list such as `PostgreSql` or `Sqlite`.
 - **ConnectionString**: The connection string for your database engine.
+- **JournalMode** (optional, SQLite only): The [journal mode](https://www.sqlite.org/pragma.html#pragma_journal_mode) to apply to the database on startup. See below.
+
+### SQLite journal mode
+
+By default BaGest leaves the journal mode of the SQLite database file untouched. A database file created by a current version of BaGest is created in `WAL` mode by Entity Framework Core, while a file created by an older BaGet/BaGest version usually uses `DELETE`. To set the mode explicitly, use the `Database:JournalMode` setting:
+
+```json
+{
+    ...
+
+    "Database": {
+        "Type": "Sqlite",
+        "ConnectionString": "Data Source=bagest.db",
+        "JournalMode": "WAL"
+    },
+
+    ...
+}
+```
+
+The value is one of `DELETE`, `TRUNCATE`, `PERSIST`, `MEMORY`, `WAL` or `OFF` (case-insensitive). BaGest runs `PRAGMA journal_mode` with this value after the database migrations on every startup and refuses to start if the value is not supported. The environment variable is `Database__JournalMode`.
+
+:::warning
+
+`WAL` mode does not work reliably when the database file is on a network filesystem, because it needs shared memory between the processes accessing the database. In that case keep the database on local storage, or use another database engine. Also note that in `WAL` mode SQLite keeps `-wal` and `-shm` files next to the database file; include them when you back up or copy the database.
+
+:::
 
 ## IIS server options
 
