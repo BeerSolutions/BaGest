@@ -54,6 +54,8 @@ public class PackageModel : PageModel
     public IReadOnlyList<DependencyGroupModel> DependencyGroups { get; private set; }
     public IReadOnlyList<VersionModel> Versions { get; private set; }
 
+    public DeprecationModel Deprecation { get; private set; }
+
     public HtmlString Readme { get; private set; }
 
     public HtmlString ParsedReleaseNotes { get; private set; }
@@ -97,6 +99,7 @@ public class PackageModel : PageModel
         var dependents = await _search.FindDependentsAsync(Package.Id, cancellationToken);
 
         UsedBy = dependents.Data;
+        Deprecation = ToDeprecationOrNull(Package);
         DependencyGroups = ToDependencyGroups(Package);
         Versions = ToVersions(listedPackages, packageVersion);
 
@@ -112,6 +115,42 @@ public class PackageModel : PageModel
             : Package.IconUrlString;
         LicenseUrl = Package.LicenseUrlString;
         PackageDownloadUrl = _url.GetPackageDownloadUrl(Package.Id, packageVersion);
+    }
+
+    private static DeprecationModel ToDeprecationOrNull(Package package)
+    {
+        if (!package.IsDeprecated)
+        {
+            return null;
+        }
+
+        // Show the stored value as is if it was not written by BaGest and cannot be parsed.
+        var alternatePackageVersionSpec = package.DeprecationAlternatePackageVersionRange == null
+            ? null
+            : VersionRange.TryParse(package.DeprecationAlternatePackageVersionRange, out var range)
+                ? range.PrettyPrint()
+                : package.DeprecationAlternatePackageVersionRange;
+
+        return new DeprecationModel(
+            ToDeprecationSummary(package.DeprecationReasons),
+            package.DeprecationMessage,
+            package.DeprecationAlternatePackageId,
+            alternatePackageVersionSpec);
+    }
+
+    // Matches the wording used by nuget.org.
+    private static string ToDeprecationSummary(PackageDeprecationReasons reasons)
+    {
+        var isLegacy = reasons.HasFlag(PackageDeprecationReasons.Legacy);
+        var hasCriticalBugs = reasons.HasFlag(PackageDeprecationReasons.CriticalBugs);
+
+        return (isLegacy, hasCriticalBugs) switch
+        {
+            (true, true) => "This package has been deprecated as it is legacy and has critical bugs.",
+            (true, false) => "This package has been deprecated as it is legacy and is no longer maintained.",
+            (false, true) => "This package has been deprecated as it has critical bugs.",
+            _ => "This package has been deprecated.",
+        };
     }
 
     private static List<DependencyGroupModel> ToDependencyGroups(Package package)
@@ -244,4 +283,17 @@ public class PackageModel : PageModel
         public bool Selected { get; set; }
         public DateTime LastUpdated { get; set; }
     }
+
+    /// <summary>
+    /// The deprecation of the displayed package version.
+    /// </summary>
+    /// <param name="Summary">A sentence describing why the package is deprecated.</param>
+    /// <param name="Message">Additional details provided by the package author, or null.</param>
+    /// <param name="AlternatePackageId">The id of the package to use instead, or null.</param>
+    /// <param name="AlternatePackageVersionSpec">The pretty-printed version range of the alternate package, or null if any version is allowed.</param>
+    public record DeprecationModel(
+        string Summary,
+        string Message,
+        string AlternatePackageId,
+        string AlternatePackageVersionSpec);
 }
