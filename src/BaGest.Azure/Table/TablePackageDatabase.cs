@@ -62,7 +62,7 @@ namespace BaGest.Azure
             {
                 try
                 {
-                    var result = await _table.GetEntityIfExistsAsync<PackageDownloadsEntity>(id, version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
+                    var result = await _table.GetEntityIfExistsAsync<PackageDownloadsEntity>(id.ToLowerInvariant(), version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
 
                     if (!result.HasValue)
                     {
@@ -101,8 +101,12 @@ namespace BaGest.Azure
 
         public async Task<bool> ExistsAsync(string id, CancellationToken cancellationToken)
         {
+            // Keys are stored lowercased (see TableOperationBuilder), and the Table service
+            // cannot translate string.Equals overloads that take a StringComparison.
+            var partitionKey = id.ToLowerInvariant();
+
             var query = _table.QueryAsync<PackageEntity>(p =>
-                            p.PartitionKey.Equals(id, StringComparison.InvariantCultureIgnoreCase),
+                            p.PartitionKey == partitionKey,
                             1,
                             MinimalColumnSet,
                             cancellationToken);
@@ -120,9 +124,12 @@ namespace BaGest.Azure
             NuGetVersion version,
             CancellationToken cancellationToken)
         {
+            var partitionKey = id.ToLowerInvariant();
+            var rowKey = version.ToNormalizedString().ToLowerInvariant();
+
             var query = _table.QueryAsync<PackageEntity>(p =>
-                                p.PartitionKey.Equals(id, StringComparison.InvariantCultureIgnoreCase) &&
-                                p.RowKey.Equals(version.ToNormalizedString(), StringComparison.InvariantCultureIgnoreCase),
+                                p.PartitionKey == partitionKey &&
+                                p.RowKey == rowKey,
                                 1,
                                 MinimalColumnSet,
                                 cancellationToken);
@@ -138,10 +145,11 @@ namespace BaGest.Azure
         public async Task<IReadOnlyList<Package>> FindAsync(string id, bool includeUnlisted, CancellationToken cancellationToken)
         {
             const int maxPerPage = 500;
+            var partitionKey = id.ToLowerInvariant();
             var query =
                 includeUnlisted
-                ? _table.QueryAsync<PackageEntity>(p => p.PartitionKey.Equals(id, StringComparison.InvariantCultureIgnoreCase), maxPerPage, cancellationToken: cancellationToken)
-                : _table.QueryAsync<PackageEntity>(p => p.PartitionKey.Equals(id, StringComparison.InvariantCultureIgnoreCase) && p.Listed, maxPerPage, cancellationToken: cancellationToken);
+                ? _table.QueryAsync<PackageEntity>(p => p.PartitionKey == partitionKey, maxPerPage, cancellationToken: cancellationToken)
+                : _table.QueryAsync<PackageEntity>(p => p.PartitionKey == partitionKey && p.Listed, maxPerPage, cancellationToken: cancellationToken);
 
             var results = new List<Package>();
             await foreach (var entity in query)
@@ -158,7 +166,7 @@ namespace BaGest.Azure
             bool includeUnlisted,
             CancellationToken cancellationToken)
         {
-            var result = await _table.GetEntityIfExistsAsync<PackageEntity>(id.ToLowerInvariant(), version.ToNormalizedString(), cancellationToken: cancellationToken);
+            var result = await _table.GetEntityIfExistsAsync<PackageEntity>(id.ToLowerInvariant(), version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
 
             if (!result.HasValue)
             {
@@ -178,13 +186,13 @@ namespace BaGest.Azure
 
         public async Task<bool> HardDeletePackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
         {
-            var result = await _table.DeleteEntityAsync(id, version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
+            var result = await _table.DeleteEntityAsync(id.ToLowerInvariant(), version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
             return !result.IsError;
         }
 
         public async Task<bool> RelistPackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
         {
-            var result = await _table.GetEntityIfExistsAsync<PackageListingEntity>(id, version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
+            var result = await _table.GetEntityIfExistsAsync<PackageListingEntity>(id.ToLowerInvariant(), version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
 
             if (!result.HasValue)
             {
@@ -202,7 +210,7 @@ namespace BaGest.Azure
 
         public async Task<bool> UnlistPackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
         {
-            var result = await _table.GetEntityIfExistsAsync<PackageListingEntity>(id, version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
+            var result = await _table.GetEntityIfExistsAsync<PackageListingEntity>(id.ToLowerInvariant(), version.ToNormalizedString().ToLowerInvariant(), cancellationToken: cancellationToken);
 
             if (!result.HasValue)
             {

@@ -38,7 +38,7 @@ Update the `appsettings.json` file with those:
 
 #### S3-compatible object storage
 
-You can use any other S3-compatible storage service, as long as it's compatible with Amazon AWS S3. Since the URL for services other than Amazon AWS will change, you need to provide this Service URL instead of the Region. For example:
+You can use any other S3-compatible storage service, as long as it's compatible with Amazon AWS S3. Since the URL for services other than Amazon AWS will change, you need to provide this Service URL as the `Endpoint`. For example:
 
 ```json
 {
@@ -56,11 +56,32 @@ You can use any other S3-compatible storage service, as long as it's compatible 
 }
 ```
 
-Note: to avoid errors, only one of `Region` or `Endpoint` setting can be set at the same time.
+At least one of `Region` or `Endpoint` must be set. When both are set, `Endpoint` is used to reach the service and `Region` is used to sign requests, which some S3-compatible services require.
+
+If your S3-compatible service (such as a local [MinIO](https://github.com/minio/minio) instance) does not support virtual-hosted-style addressing, set `ForcePathStyle` to `true` so the bucket name is sent as part of the URL path instead of the host name.
+
+```json
+{
+    ...
+
+    "Storage": {
+        "Type": "AwsS3",
+        "Endpoint": "http://localhost:9000",
+        "ForcePathStyle": true,
+        "Bucket": "nuget-packages",
+        "AccessKey": "minioadmin",
+        "SecretKey": "minioadmin"
+    },
+
+    ...
+}
+```
+
+Services that do not support chunked payload signing (`aws-chunked` uploads) can be used by setting `UseChunkEncoding` to `false`. It defaults to `true`.
 
 #### Known compatible services
 
-So far, it has been tested in [Linode’s Object Storage](https://www.linode.com/docs/products/storage/object-storage/). If you succeed in using other storage service, let us know so we can state it here.
+So far, it has been tested with [Linode’s Object Storage](https://www.linode.com/docs/products/storage/object-storage/) and [MinIO](https://github.com/minio/minio). If you succeed in using other storage service, let us know so we can state it here.
 
 
 ### Amazon RDS
