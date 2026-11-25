@@ -57,6 +57,26 @@ public class Package
     public string[] Tags { get; set; }
 
     /// <summary>
+    /// Why this package version is deprecated, or <see cref="PackageDeprecationReasons.None"/>.
+    /// </summary>
+    public PackageDeprecationReasons DeprecationReasons { get; set; }
+
+    /// <summary>
+    /// Additional details about the deprecation.
+    /// </summary>
+    public string DeprecationMessage { get; set; }
+
+    /// <summary>
+    /// The id of the package that should be used instead of this deprecated package.
+    /// </summary>
+    public string DeprecationAlternatePackageId { get; set; }
+
+    /// <summary>
+    /// The version range of the alternate package, or null if any version is allowed.
+    /// </summary>
+    public string DeprecationAlternatePackageVersionRange { get; set; }
+
+    /// <summary>
     /// Used for optimistic concurrency.
     /// </summary>
     public byte[] RowVersion { get; set; }
@@ -73,4 +93,34 @@ public class Package
     public string LicenseUrlString => LicenseUrl?.AbsoluteUri ?? string.Empty;
     public string ProjectUrlString => ProjectUrl?.AbsoluteUri ?? string.Empty;
     public string RepositoryUrlString => RepositoryUrl?.AbsoluteUri ?? string.Empty;
+
+    /// <summary>
+    /// Whether this package version is deprecated.
+    /// </summary>
+    public bool IsDeprecated => DeprecationReasons != PackageDeprecationReasons.None;
+
+    /// <summary>
+    /// Mark this package version as deprecated, replacing any previous deprecation.
+    /// </summary>
+    /// <param name="deprecation">The deprecation to apply.</param>
+    public void Deprecate(PackageDeprecationDetails deprecation)
+    {
+        ArgumentNullException.ThrowIfNull(deprecation);
+
+        DeprecationReasons = deprecation.Reasons;
+        DeprecationMessage = deprecation.Message;
+        DeprecationAlternatePackageId = deprecation.AlternatePackageId;
+        DeprecationAlternatePackageVersionRange = deprecation.AlternatePackageVersionRange;
+    }
+
+    /// <summary>
+    /// Remove the deprecation of this package version.
+    /// </summary>
+    public void Undeprecate()
+    {
+        DeprecationReasons = PackageDeprecationReasons.None;
+        DeprecationMessage = null;
+        DeprecationAlternatePackageId = null;
+        DeprecationAlternatePackageVersionRange = null;
+    }
 }

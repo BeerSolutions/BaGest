@@ -88,6 +88,74 @@ public class RegistrationBuilderTests
     }
 
     [Fact]
+    public void BuildIndex_PackageNotDeprecated_ShouldHaveNoDeprecation()
+    {
+        // Arrange
+        var package = Generator.GetPackage("dummy", "1.0.0");
+
+        // Act
+        var response = _registrationBuilder.BuildIndex(new PackageRegistration("dummy", [package]));
+
+        // Assert
+        Assert.Null(response.Pages[0].ItemsOrNull[0].PackageMetadata.Deprecation);
+    }
+
+    [Fact]
+    public void BuildIndex_PackageDeprecated_ShouldHaveDeprecation()
+    {
+        // Arrange
+        var package = Generator.GetPackage("dummy", "1.0.0");
+        var details = Generator.GetDeprecation(["Other", "Legacy"], message: "Use New.Package", alternatePackageId: "New.Package", alternatePackageVersionRange: "2.0.0");
+        package.Deprecate(details);
+
+        // Act
+        var response = _registrationBuilder.BuildIndex(new PackageRegistration("dummy", [package]));
+
+        // Assert
+        var deprecation = response.Pages[0].ItemsOrNull[0].PackageMetadata.Deprecation;
+        Assert.NotNull(deprecation);
+        Assert.Null(deprecation.CatalogLeafUrl);
+        Assert.Equal(["Legacy", "Other"], deprecation.Reasons);
+        Assert.Equal("Use New.Package", deprecation.Message);
+        Assert.Equal("New.Package", deprecation.AlternatePackage.Id);
+        Assert.Equal("[2.0.0, )", deprecation.AlternatePackage.Range);
+    }
+
+    [Fact]
+    public void BuildIndex_AlternatePackageWithoutVersionRange_ShouldAllowAnyVersion()
+    {
+        // Arrange
+        var package = Generator.GetPackage("dummy", "1.0.0");
+        var details = Generator.GetDeprecation(["Legacy"], alternatePackageId: "New.Package");
+        package.Deprecate(details);
+
+        // Act
+        var response = _registrationBuilder.BuildIndex(new PackageRegistration("dummy", [package]));
+
+        // Assert
+        var deprecation = response.Pages[0].ItemsOrNull[0].PackageMetadata.Deprecation;
+        Assert.Null(deprecation.Message);
+        Assert.Equal("*", deprecation.AlternatePackage.Range);
+    }
+
+    [Fact]
+    public void BuildIndex_DeprecationWithoutAlternatePackage_ShouldHaveNoAlternatePackage()
+    {
+        // Arrange
+        var package = Generator.GetPackage("dummy", "1.0.0");
+        var details = Generator.GetDeprecation(["CriticalBugs"]);
+        package.Deprecate(details);
+
+        // Act
+        var response = _registrationBuilder.BuildIndex(new PackageRegistration("dummy", [package]));
+
+        // Assert
+        var deprecation = response.Pages[0].ItemsOrNull[0].PackageMetadata.Deprecation;
+        Assert.Equal(["CriticalBugs"], deprecation.Reasons);
+        Assert.Null(deprecation.AlternatePackage);
+    }
+
+    [Fact]
     public void BuildLeaf_RegistrationLeafResponse_ShouldHaveCorrectProperties()
     {
         // Arrange

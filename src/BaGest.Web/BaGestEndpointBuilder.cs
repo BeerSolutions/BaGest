@@ -48,6 +48,18 @@ public class BaGestEndpointBuilder
             pattern: "api/v2/package/{id}/{version}",
             defaults: new { controller = "PackagePublish", action = "Relist" },
             constraints: new { httpMethod = new HttpMethodRouteConstraint("POST") });
+
+        endpoints.MapControllerRoute(
+            name: Routes.DeprecateRouteName,
+            pattern: "api/v2/package/{id}/{version}/deprecation",
+            defaults: new { controller = "PackagePublish", action = "Deprecate" },
+            constraints: new { httpMethod = new HttpMethodRouteConstraint("PUT") });
+
+        endpoints.MapControllerRoute(
+            name: Routes.UndeprecateRouteName,
+            pattern: "api/v2/package/{id}/{version}/deprecation",
+            defaults: new { controller = "PackagePublish", action = "Undeprecate" },
+            constraints: new { httpMethod = new HttpMethodRouteConstraint("DELETE") });
     }
 
     public void MapSymbolRoutes(IEndpointRouteBuilder endpoints)

@@ -17,7 +17,7 @@ namespace BaGest.Database.PostgreSql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
@@ -38,6 +38,21 @@ namespace BaGest.Database.PostgreSql.Migrations
                     b.Property<string>("CachedFrom")
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)");
+
+                    b.Property<string>("DeprecationAlternatePackageId")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DeprecationAlternatePackageVersionRange")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("DeprecationMessage")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<int>("DeprecationReasons")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)

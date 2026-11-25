@@ -226,6 +226,69 @@ namespace BaGest.Azure
             return true;
         }
 
+        public Task<bool> DeprecatePackageAsync(
+            string id,
+            NuGetVersion version,
+            PackageDeprecationDetails deprecation,
+            CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(deprecation);
+
+            return TryUpdateDeprecationAsync(id, version, p => p.Deprecate(deprecation), cancellationToken);
+        }
+
+        public Task<bool> UndeprecatePackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken)
+        {
+            return TryUpdateDeprecationAsync(id, version, p => p.Undeprecate(), cancellationToken);
+        }
+
+        private async Task<bool> TryUpdateDeprecationAsync(
+            string id,
+            NuGetVersion version,
+            Action<Package> update,
+            CancellationToken cancellationToken)
+        {
+            var attempt = 0;
+
+            while (true)
+            {
+                var result = await _table.GetEntityIfExistsAsync<PackageEntity>(
+                    id.ToLowerInvariant(),
+                    version.ToNormalizedString().ToLowerInvariant(),
+                    cancellationToken: cancellationToken);
+
+                if (!result.HasValue)
+                {
+                    return false;
+                }
+
+                var entity = result.Value;
+                var package = entity.AsPackage();
+
+                update(package);
+                TableOperationBuilder.SetDeprecation(entity, package);
+
+                try
+                {
+                    // A merge would keep the previous values of properties that are now null,
+                    // so replace the entity. The ETag makes sure a concurrent update, such as a
+                    // download count increment, is not overwritten.
+                    await _table.UpdateEntityAsync(entity, entity.ETag, TableUpdateMode.Replace, cancellationToken);
+
+                    return true;
+                }
+                catch (RequestFailedException e)
+                    when (attempt < MaxPreconditionFailures && e.IsPreconditionFailedException())
+                {
+                    attempt++;
+                    _logger.LogWarning(
+                        e,
+                        "Retrying due to precondition failure, attempt {Attempt} of {MaxPreconditionFailures}",
+                        attempt, MaxPreconditionFailures);
+                }
+            }
+        }
+
         private static List<string> MinimalColumnSet => ["PartitionKey"];
     }
 }

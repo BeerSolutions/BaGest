@@ -78,6 +78,29 @@ public interface IPackageDatabase
     Task<bool> RelistPackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Deprecate a package, replacing any previous deprecation of that version.
+    /// </summary>
+    /// <param name="id">The id of the package to deprecate.</param>
+    /// <param name="version">The version of the package to deprecate.</param>
+    /// <param name="deprecation">The deprecation to apply.</param>
+    /// <param name="cancellationToken">A token to cancel the task.</param>
+    /// <returns>False if the package does not exist.</returns>
+    Task<bool> DeprecatePackageAsync(
+        string id,
+        NuGetVersion version,
+        PackageDeprecationDetails deprecation,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Remove the deprecation of a package.
+    /// </summary>
+    /// <param name="id">The id of the package to undeprecate.</param>
+    /// <param name="version">The version of the package to undeprecate.</param>
+    /// <param name="cancellationToken">A token to cancel the task.</param>
+    /// <returns>False if the package does not exist.</returns>
+    Task<bool> UndeprecatePackageAsync(string id, NuGetVersion version, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Increment a package's download count.
     /// </summary>
     /// <param name="id">The id of the package to update.</param>
