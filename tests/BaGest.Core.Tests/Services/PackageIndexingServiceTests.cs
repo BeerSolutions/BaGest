@@ -216,6 +216,54 @@ public class PackageIndexingServiceTests
         Assert.Equal(PackageIndexingResult.Success, result);
     }
 
+    [Theory]
+    [InlineData(null, null, null, null, false)]
+    [InlineData(1u, null, null, null, true)]
+    [InlineData(null, 1u, null, null, true)]
+    [InlineData(null, null, 1u, null, true)]
+    [InlineData(null, null, null, 1u, true)]
+    public async Task IndexAsync_RunsRetention_WhenAnyLimitIsConfigured(
+        uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, bool retentionRuns)
+    {
+        // Arrange
+        _mockOptions.AllowPackageOverwrites = PackageOverwriteAllowed.False;
+        _retentionOptions.MaxMajorVersions = maxMajor;
+        _retentionOptions.MaxMinorVersions = maxMinor;
+        _retentionOptions.MaxPatchVersions = maxPatch;
+        _retentionOptions.MaxPrereleaseVersions = maxPrerelease;
+
+        var builder = new PackageBuilder
+        {
+            Id = "bagest-test",
+            Version = NuGetVersion.Parse("1.0.0"),
+            Description = "Test Description",
+        };
+        builder.Authors.Add("Test Author");
+        builder.Files.Add(new PhysicalPackageFile
+        {
+            SourcePath = GetType().Assembly.Location,
+            TargetPath = "lib/Test.dll"
+        });
+        var stream = new MemoryStream();
+        builder.Save(stream);
+        _packages.Setup(p => p.ExistsAsync(builder.Id, builder.Version, default)).ReturnsAsync(false);
+        _packages.Setup(p => p.AddAsync(It.IsAny<Package>(), default)).ReturnsAsync(PackageAddResult.Success);
+        _storage.Setup(s => s.SavePackageContentAsync(It.IsAny<Package>(), stream, It.IsAny<FileStream>(), default, default, default)).Returns(Task.CompletedTask);
+        _search.Setup(s => s.IndexAsync(It.IsAny<Package>(), default)).Returns(Task.CompletedTask);
+        _deleter
+            .Setup(d => d.DeleteOldVersionsAsync(It.IsAny<Package>(), maxMajor, maxMinor, maxPatch, maxPrerelease, default))
+            .ReturnsAsync(0);
+
+        // Act
+        var result = await _target.IndexAsync(stream, default);
+
+        // Assert
+        Assert.Equal(PackageIndexingResult.Success, result);
+        _deleter.Verify(
+            d => d.DeleteOldVersionsAsync(It.IsAny<Package>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<uint?>(), default),
+            retentionRuns ? Times.Once : Times.Never);
+    }
+
     [Fact]
     public async Task WhenDatabaseAddFailsBecausePackageAlreadyExists_ReturnsPackageAlreadyExists()
     {
