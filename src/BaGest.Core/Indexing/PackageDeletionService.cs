@@ -107,7 +107,7 @@ public class PackageDeletionService : IPackageDeletionService
         return versions.Where(k => validVersions.Any(v => getParent(k).Equals(v.parent) && getSelector(k).Equals(v.selector))).ToList();
     }
 
-    public async Task<int> DeleteOldVersionsAsync(Package package, uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, CancellationToken cancellationToken)
+    public async Task<int> DeleteOldVersionsAsync(Package package, uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, bool deletePrereleasesOfOlderMajors, CancellationToken cancellationToken)
     {
         // list all versions of the package
         var packages = await _packages.FindAsync(package.Id, includeUnlisted: true, cancellationToken);
@@ -140,6 +140,18 @@ public class PackageDeletionService : IPackageDeletionService
 
             goodVersions.RemoveWhere(v => v.IsPrerelease);
             goodVersions.UnionWith(allPreReleaseValidVersions);
+        }
+
+        if (deletePrereleasesOfOlderMajors)
+        {
+            // Drop prereleases whose major is below the highest major that has a stable release.
+            // Unlisted stable versions count too, as they are still part of the package history.
+            var latestStableMajor = packages
+                .Where(p => !p.Version.IsPrerelease)
+                .Select(p => p.Version.Major)
+                .DefaultIfEmpty(-1)
+                .Max();
+            goodVersions.RemoveWhere(v => v.IsPrerelease && v.Major < latestStableMajor);
         }
 
         // Never delete the package that is currently being indexed. When it was mirrored from an upstream feed,

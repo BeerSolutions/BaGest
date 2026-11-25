@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -145,7 +146,7 @@ public class PackageDeletionServiceTests
         // Act
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("4.0.0"), IsPrerelease = false },
-            maxMajor: maxVersions, maxMinor:null, maxPatch:null, maxPrerelease:null, cancellationToken);
+            maxMajor: maxVersions, maxMinor:null, maxPatch:null, maxPrerelease:null, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert - The database step MUST happen before the storage step.
         Assert.Equal(expectedCount, deleted);
@@ -187,7 +188,7 @@ public class PackageDeletionServiceTests
         // Act
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("4.0.0"), IsPrerelease = false },
-            maxMajor: null, maxMinor:maxVersions, maxPatch:null, maxPrerelease:null, cancellationToken);
+            maxMajor: null, maxMinor:maxVersions, maxPatch:null, maxPrerelease:null, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert - The database step MUST happen before the storage step.
         Assert.Equal(expectedCount, deleted);
@@ -229,7 +230,7 @@ public class PackageDeletionServiceTests
         // Act
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("4.0.0"), IsPrerelease = false },
-            maxMajor: null, maxMinor:null, maxPatch:maxPrereleaseVersions, maxPrerelease:null, cancellationToken);
+            maxMajor: null, maxMinor:null, maxPatch:maxPrereleaseVersions, maxPrerelease:null, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert - The database step MUST happen before the storage step.
         Assert.Equal(expectedCount, deleted);
@@ -299,7 +300,7 @@ public class PackageDeletionServiceTests
         // Act
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("4.0.0"), IsPrerelease = false },
-            maxMajor: null, maxMinor:null, maxPatch:null, maxPrerelease:maxVersions, cancellationToken);
+            maxMajor: null, maxMinor:null, maxPatch:null, maxPrerelease:maxVersions, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert - The database step MUST happen before the storage step.
         Assert.Equal(expectedCount, deleted);
@@ -381,7 +382,7 @@ public class PackageDeletionServiceTests
         // Act
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("4.4.5"), IsPrerelease = false },
-            maxMajor: maxMajorVersions, maxMinor:maxMinorVersions, maxPatch:maxPatchVersions, maxPrerelease:maxPrereleaseVersions, cancellationToken);
+            maxMajor: maxMajorVersions, maxMinor:maxMinorVersions, maxPatch:maxPatchVersions, maxPrerelease:maxPrereleaseVersions, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert - The database step MUST happen before the storage step.
         Assert.Equal(expectedCount, deleted);
@@ -413,7 +414,7 @@ public class PackageDeletionServiceTests
         // Act
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("1.0.0-beta.3"), IsPrerelease = true },
-            maxMajor: 5, maxMinor: null, maxPatch: null, maxPrerelease: 1, cancellationToken);
+            maxMajor: 5, maxMinor: null, maxPatch: null, maxPrerelease: 1, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert
         Assert.Equal(2, deleted);
@@ -444,10 +445,116 @@ public class PackageDeletionServiceTests
         // Act - e.g. an old version mirrored from an upstream feed
         var deleted = await _target.DeleteOldVersionsAsync(
             new Package { Id = PackageId, Version = new NuGetVersion("1.0.0"), IsPrerelease = false },
-            maxMajor: 1, maxMinor: null, maxPatch: null, maxPrerelease: null, cancellationToken);
+            maxMajor: 1, maxMinor: null, maxPatch: null, maxPrerelease: null, deletePrereleasesOfOlderMajors: false, cancellationToken);
 
         // Assert
         Assert.Equal(1, deleted);
         Assert.Equal(new NuGetVersion("2.0.0"), Assert.Single(deletedVersions));
+    }
+
+    [Theory]
+    [InlineData(false, new string[0])]
+    [InlineData(true, new[] { "1.0.0-alpha", "2.0.0-beta.1", "2.1.0-beta.1" })]
+    public async Task WhenDeletePrereleasesOfOlderMajors_DeletesOnlyPrereleasesBelowLatestStableMajor(
+        bool deletePrereleasesOfOlderMajors, string[] expectedDeleted)
+    {
+        // Arrange
+        var deletedVersions = await RunRetentionAsync(
+            ["1.0.0-alpha", "1.0.0", "2.0.0-beta.1", "2.1.0-beta.1", "2.1.0", "3.0.0", "3.1.0-beta.1", "4.0.0-alpha.1"],
+            indexed: "3.0.0",
+            deletePrereleasesOfOlderMajors);
+
+        // Assert
+        Assert.Equal(expectedDeleted.Order(), deletedVersions.Select(v => v.ToNormalizedString()).Order());
+    }
+
+    [Fact]
+    public async Task WhenDeletePrereleasesOfOlderMajors_AndNoStableVersionExists_DeletesNothing()
+    {
+        var deletedVersions = await RunRetentionAsync(
+            ["1.0.0-alpha", "2.0.0-beta.1", "3.0.0-rc.1"], indexed: "3.0.0-rc.1", deletePrereleasesOfOlderMajors: true);
+
+        Assert.Empty(deletedVersions);
+    }
+
+    [Fact]
+    public async Task WhenDeletePrereleasesOfOlderMajors_NeverDeletesIndexedPrerelease()
+    {
+        // e.g. an old prerelease mirrored from an upstream feed
+        var deletedVersions = await RunRetentionAsync(
+            ["1.0.0-alpha", "1.0.0-beta", "3.0.0"], indexed: "1.0.0-alpha", deletePrereleasesOfOlderMajors: true);
+
+        Assert.Equal([new NuGetVersion("1.0.0-beta")], deletedVersions);
+    }
+
+    [Fact]
+    public async Task WhenDeletePrereleasesOfOlderMajors_KeepsStableVersionsAndNewestVersion()
+    {
+        var deletedVersions = await RunRetentionAsync(
+            ["1.0.0", "1.5.0-rc.1", "2.0.0", "2.1.0-rc.1", "3.0.0-beta.1"], indexed: "2.0.0", deletePrereleasesOfOlderMajors: true);
+
+        Assert.Equal([new NuGetVersion("1.5.0-rc.1")], deletedVersions);
+    }
+
+    [Fact]
+    public async Task WhenDeletePrereleasesOfOlderMajors_CountsUnlistedStableVersions()
+    {
+        // FindAsync returns unlisted versions as well, so the latest stable major is derived from them too.
+        var deletedVersions = await RunRetentionAsync(
+            ["2.0.0-beta.1", "3.0.0"], indexed: "2.0.0-beta.1", deletePrereleasesOfOlderMajors: true,
+            unlisted: ["3.0.0"]);
+
+        Assert.Empty(deletedVersions);
+    }
+
+    [Fact]
+    public async Task WhenDeletePrereleasesOfOlderMajors_CombinesWithOtherLimits()
+    {
+        // MaxMajorVersions keeps majors 2 and 3 (and 1.0.0 goes); the option additionally drops 2.0.0-beta.1.
+        var deletedVersions = await RunRetentionAsync(
+            ["1.0.0", "2.0.0-beta.1", "2.0.0", "3.0.0"], indexed: "3.0.0", deletePrereleasesOfOlderMajors: true, maxMajor: 2);
+
+        Assert.Equal(
+            new[] { "1.0.0", "2.0.0-beta.1" },
+            deletedVersions.Select(v => v.ToNormalizedString()).Order());
+    }
+
+    [Fact]
+    public async Task WhenDeletePrereleasesOfOlderMajors_CombinesWithMaxPrerelease()
+    {
+        // MaxPrerelease keeps beta.2 and beta.3 of 2.0.0; the option still drops them as major 2 < stable major 3.
+        var deletedVersions = await RunRetentionAsync(
+            ["2.0.0-beta.1", "2.0.0-beta.2", "2.0.0-beta.3", "3.0.0", "3.1.0-beta.1"], indexed: "3.0.0",
+            deletePrereleasesOfOlderMajors: true, maxPrerelease: 2);
+
+        Assert.Equal(
+            new[] { "2.0.0-beta.1", "2.0.0-beta.2", "2.0.0-beta.3" },
+            deletedVersions.Select(v => v.ToNormalizedString()).Order());
+    }
+
+    private async Task<List<NuGetVersion>> RunRetentionAsync(
+        string[] versions, string indexed, bool deletePrereleasesOfOlderMajors, uint? maxMajor = null, uint? maxPrerelease = null, string[] unlisted = null)
+    {
+        var cancellationToken = CancellationToken.None;
+        var deletedVersions = new List<NuGetVersion>();
+        _packages
+            .Setup(p => p.FindAsync(PackageId, true, cancellationToken))
+            .ReturnsAsync(versions
+                .Select(v => new Package { Id = PackageId, Version = new NuGetVersion(v), Listed = unlisted?.Contains(v) != true })
+                .ToList());
+        _storage
+            .Setup(s => s.DeleteAsync(PackageId, It.IsAny<NuGetVersion>(), cancellationToken))
+            .Returns(Task.CompletedTask);
+        _packages
+            .Setup(p => p.HardDeletePackageAsync(PackageId, It.IsAny<NuGetVersion>(), cancellationToken))
+            .Callback<string, NuGetVersion, CancellationToken>((_, v, _) => deletedVersions.Add(v))
+            .ReturnsAsync(true);
+
+        var deleted = await _target.DeleteOldVersionsAsync(
+            new Package { Id = PackageId, Version = new NuGetVersion(indexed) },
+            maxMajor, maxMinor: null, maxPatch: null, maxPrerelease, deletePrereleasesOfOlderMajors, cancellationToken);
+
+        Assert.Equal(deletedVersions.Count, deleted);
+        return deletedVersions;
     }
 }
