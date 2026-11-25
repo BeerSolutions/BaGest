@@ -59,7 +59,7 @@ jobs:
           global-json-file: global.json
       - name: Publish
         run: |
-          dotnet publish src/BaGetter --configuration Release --output artifacts --property:Version="$RELEASE_VERSION"
+          dotnet publish src/BaGest --configuration Release --output artifacts --property:Version="$RELEASE_VERSION"
           echo "$GITHUB_SHA" > artifacts/ReleaseSha.txt
           7z a -tzip "bagest-$RELEASE_VERSION.zip" ./artifacts/*
       - name: Create GitHub release
@@ -141,7 +141,7 @@ jobs:
     name: Release Helm chart
     runs-on: ubuntu-latest
     env:
-      CHART_DIR: deployment templates/chart/bagetter
+      CHART_DIR: deployment templates/chart/bagest
       CHART_REPO: ${{ vars.HELM_CHART_REPO }}
       CHART_REPO_BRANCH: gh-pages
       CR_VERSION: 1.10.1

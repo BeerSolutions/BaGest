@@ -1,13 +1,13 @@
-# BaGetter SDK
+# BaGest SDK
 
-You can use BaGetter's [`BaGetter.Protocol`](https://www.nuget.org/packages/BaGetter.Protocol) package to interact with a NuGet server.
+You can use BaGest's [`BaGest.Protocol`](https://www.nuget.org/packages/BaGest.Protocol) package to interact with a NuGet server.
 
 ## Getting Started
 
-Install the [`BaGetter.Protocol`](https://www.nuget.org/packages/BaGetter.Protocol) package:
+Install the [`BaGest.Protocol`](https://www.nuget.org/packages/BaGest.Protocol) package:
 
 ```shell
-dotnet add package BaGetter.Protocol
+dotnet add package BaGest.Protocol
 ```
 
 ## List Package Versions

@@ -2,9 +2,9 @@
 
 You can store packages to [Alibaba Cloud (Aliyun) Object Storage Service](https://www.alibabacloud.com/product/object-storage-service).
 
-## Configure BaGetter
+## Configure BaGest
 
-You can modify BaGetter's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGetter's configuration](../configuration.md) guide.
+You can modify BaGest's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGest's configuration](../configuration.md) guide.
 
 ### Alibaba Cloud Object Storage Service (OSS)
 
@@ -20,7 +20,7 @@ Update the `appsettings.json` file:
         "Bucket": "foo",
         "AccessKey": "",
         "AccessKeySecret": "",
-        "Prefix": "lib/bagetter" // optional
+        "Prefix": "lib/bagest" // optional
     },
 
     ...

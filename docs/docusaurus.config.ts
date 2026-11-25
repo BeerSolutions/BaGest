@@ -3,20 +3,20 @@ import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
-  title: 'BaGetter',
+  title: 'BaGest',
   tagline: 'Effortless .NET Core NuGet hosting',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://www.bagetter.com/',
+  url: 'https://beersolutions.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/BaGest/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'bagetter', // Usually your GitHub org/user name.
-  projectName: 'BaGetter', // Usually your repo name.
+  organizationName: 'BeerSolutions', // Usually your GitHub org/user name.
+  projectName: 'BaGest', // Usually your repo name.
 
   deploymentBranch: "gh-pages",
   trailingSlash: false,
@@ -42,7 +42,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/bagetter/BaGetter/tree/main/docs',
+            'https://github.com/BeerSolutions/BaGest/tree/main/docs',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -60,7 +60,7 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'BaGetter',
+      title: 'BaGest',
       logo: {
         alt: 'My Site Logo',
         src: 'img/logo.svg',
@@ -73,7 +73,7 @@ const config: Config = {
           label: 'Docs',
         },
         {
-          href: 'https://github.com/bagetter/BaGetter',
+          href: 'https://github.com/BeerSolutions/BaGest',
           label: 'GitHub',
           position: 'right',
         },
@@ -86,7 +86,7 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'BaGetter',
+              label: 'BaGest',
               to: '/docs',
             },
           ],
@@ -95,12 +95,8 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/bagetter',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discord.gg/XsAmm6f2hZ',
+              label: 'Issues',
+              href: 'https://github.com/BeerSolutions/BaGest/issues',
             },
           ],
         },
@@ -109,12 +105,12 @@ const config: Config = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/bagetter/BaGetter',
+              href: 'https://github.com/BeerSolutions/BaGest',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} BaGetter. Built with <a href="https://www.docusaurus.io">Docusaurus</a>.`,
+      copyright: `Copyright © ${new Date().getFullYear()} BaGest. Built with <a href="https://www.docusaurus.io">Docusaurus</a>.`,
     },
     prism: {
       theme: prismThemes.github,

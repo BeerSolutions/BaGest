@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Configuration
 
-You can modify BaGetter's configurations by editing the `appsettings.json` file.
+You can modify BaGest's configurations by editing the `appsettings.json` file.
 
 ## Require an API key
 
@@ -46,12 +46,12 @@ dotnet nuget push -s http://localhost:5000/v3/index.json -k NUGET-SERVER-API-KEY
 
 ## Hosting on a different path
 
-By default, BaGetter is hosted at the root path `/` (e.g. `bagetter.your-company.org`). You can host BaGetter at a different path (e.g. `bagetter.your-company.org/bagetter`) by setting the `PathBase` field:
+By default, BaGest is hosted at the root path `/` (e.g. `bagest.your-company.org`). You can host BaGest at a different path (e.g. `bagest.your-company.org/bagest`) by setting the `PathBase` field:
 
 ```json
 {
     ...
-    "PathBase": "/bagetter",
+    "PathBase": "/bagest",
     ...
 }
 ```
@@ -64,7 +64,7 @@ caching to:
 1. Speed up your builds if restores from [nuget.org](https://nuget.org) are slow
 2. Enable package restores in offline scenarios
 
-The following `Mirror` setting configures BaGetter to index packages from [nuget.org](https://nuget.org):
+The following `Mirror` setting configures BaGest to index packages from [nuget.org](https://nuget.org):
 
 <Tabs>
   <TabItem value="None" label="No Authentication" default>
@@ -160,7 +160,7 @@ The following `Mirror` setting configures BaGetter to index packages from [nuget
 ## Enable package hard deletions
 
 To prevent the ["left pad" problem](https://blog.npmjs.org/post/141577284765/kik-left-pad-and-npm),
-BaGetter's default configuration doesn't allow package deletions. Whenever BaGetter receives a package deletion
+BaGest's default configuration doesn't allow package deletions. Whenever BaGest receives a package deletion
 request, it will instead "unlist" the package. An unlisted package is undiscoverable but can still be
 downloaded if you know the package's id and version. You can override this behavior by setting the
 `PackageDeletionBehavior`:
@@ -177,7 +177,7 @@ downloaded if you know the package's id and version. You can override this behav
 
 ## Package auto-deletion
 
-If your build server generates many nuget packages, your BaGetter server can quickly run out of space. Bagetter leverages [SemVer 2](https://semver.org/) and has logic to keep a history of packages based on the version numbering such as `<major>.<minor>.<patch>-<prerelease tag>.<prerelease build number>`.
+If your build server generates many nuget packages, your BaGest server can quickly run out of space. BaGest leverages [SemVer 2](https://semver.org/) and has logic to keep a history of packages based on the version numbering such as `<major>.<minor>.<patch>-<prerelease tag>.<prerelease build number>`.
 
 There is an optional config section for `Retention` and the following parameters can be enabled to limit history for each level of the version. If none of these are set, there are no cleaning rules enforced. Each parameter is optional, e.g. if you specify only a `MaxPatchVersions`, the package limit will only enforced within each major and minor version combination.
 Packages deleted are always the oldest based on version numbers.
@@ -202,7 +202,7 @@ Packages deleted are always the oldest based on version numbers.
 
 ## Enable package overwrites
 
-Normally, BaGetter will reject a package upload if the id and version are already taken. This is to maintain the [immutability of semantically versioned packages](https://learn.microsoft.com/azure/devops/artifacts/artifacts-key-concepts?view=azure-devops#immutability).
+Normally, BaGest will reject a package upload if the id and version are already taken. This is to maintain the [immutability of semantically versioned packages](https://learn.microsoft.com/azure/devops/artifacts/artifacts-key-concepts?view=azure-devops#immutability).
 
 :::warning
 
@@ -212,7 +212,7 @@ Make sure that everyone involved is aware of the implications of overwriting pac
 
 :::
 
-You can configure BaGetter to overwrite the already existing package by setting `AllowPackageOverwrites`:
+You can configure BaGest to overwrite the already existing package by setting `AllowPackageOverwrites`:
 
 ```json
 {
@@ -278,12 +278,12 @@ NuGet Sources Update -Name "localhost" -Source "http://localhost:5000/v3/index.j
 The commands are slightly different when using the Package Manager console in Visual Studio:
 
 ```shell
-dotnet nuget add source "http://localhost:5000/v3/index.json" --name "bagetter" --username "username" --password "password"
+dotnet nuget add source "http://localhost:5000/v3/index.json" --name "bagest" --username "username" --password "password"
 ```
 
 ## Database configuration
 
-BaGetter supports multiple database engines for storing package information:
+BaGest supports multiple database engines for storing package information:
 
 - MySQL: `MySql`
 - SQLite: `Sqlite`
@@ -318,7 +318,7 @@ The database settings are located under the `Database` key in the `appsettings.j
 
     "Database": {
         "Type": "Sqlite",
-        "ConnectionString": "Data Source=bagetter.db"
+        "ConnectionString": "Data Source=bagest.db"
     },
 
     ...
@@ -336,7 +336,7 @@ IIS Server options can be configured under the `IISServerOptions` key. The avail
 
 :::note
 
-If not specified, the `MaxRequestBodySize` in BaGetter defaults to 250MB (262144000 bytes), rather than the ASP.NET Core default of 30MB.
+If not specified, the `MaxRequestBodySize` in BaGest defaults to 250MB (262144000 bytes), rather than the ASP.NET Core default of 30MB.
 
 :::
 
@@ -431,8 +431,8 @@ This allows for sensitive values to be provided individually to the application,
 
 ```yaml
 services:
-  bagetter:
-    image: bagetter/bagetter:latest
+  bagest:
+    image: ghcr.io/beersolutions/bagest:latest
     volumes:
       # Single file mounted for API key
       - ./secrets/api-key.txt:/run/secrets/ApiKey:ro
@@ -440,7 +440,7 @@ services:
     ports:
       - "5000:8080"
     environment:
-      - Database__ConnectionString=Data Source=/srv/baget/bagetter.db
+      - Database__ConnectionString=Data Source=/srv/baget/bagest.db
       - Database__Type=Sqlite
       - Mirror__Enabled=false
       - Storage__Type=FileSystem

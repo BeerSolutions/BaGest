@@ -14,7 +14,7 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        BaGetter empowers you to (self-) host NuGet packages anywhere, ensuring flexibility in your deployment choices.
+        BaGest empowers you to (self-) host NuGet packages anywhere, ensuring flexibility in your deployment choices.
       </>
     ),
   },
@@ -32,7 +32,7 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        With BaGetter, enjoy full control over your NuGet server.
+        With BaGest, enjoy full control over your NuGet server.
       </>
     ),
   },

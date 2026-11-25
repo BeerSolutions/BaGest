@@ -1,15 +1,15 @@
-# Run BaGetter on your Computer
+# Run BaGest on your Computer
 
-## Run BaGetter
+## Run BaGest
 
 1. Install the [.NET Core SDK](https://www.microsoft.com/net/download)
-2. Download and extract [BaGetter's latest release](https://github.com/bagetter/BaGetter/releases)
-3. Start the service with `dotnet BaGetter.dll`
+2. Download and extract [BaGest's latest release](https://github.com/BeerSolutions/BaGest/releases)
+3. Start the service with `dotnet BaGest.dll`
 4. Browse `http://localhost:5000/` in your browser
 
-## Configure BaGetter
+## Configure BaGest
 
-You can modify BaGetter's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGetter's configuration](../configuration.md) guide.
+You can modify BaGest's configurations by editing the `appsettings.json` file. For the full list of configurations, please refer to [BaGest's configuration](../configuration.md) guide.
 
 ## Publish packages
 

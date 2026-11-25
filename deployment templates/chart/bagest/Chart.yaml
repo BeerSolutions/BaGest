@@ -1,0 +1,32 @@
+apiVersion: v2
+name: bagest
+description: A Helm chart for BaGest nuget package server
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: "1.0.4"
+
+keywords:
+  - nuget
+  - baget
+  - bagest
+
+home: https://github.com/BeerSolutions/BaGest/tree/main/deployment%20templates/chart/bagest
+# icon: 
+
+sources:
+  - https://github.com/BeerSolutions/BaGest
+  - https://github.com/BeerSolutions/BaGest/pkgs/container/bagest
+
+dependencies:
+  - name: common
+    repository: https://bjw-s-labs.github.io/helm-charts
+    version: 3.0.3
