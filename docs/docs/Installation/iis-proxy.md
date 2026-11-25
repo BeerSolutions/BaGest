@@ -4,7 +4,7 @@ With a few extra steps you can run BaGest behind a Windows IIS proxy. This has m
 
 ## IIS setup
 
-1. Install the [.NET 8 Runtime](https://dotnet.microsoft.com/download) on the web server.
+1. Install the [.NET 10 Runtime](https://dotnet.microsoft.com/download) on the web server.
 2. Copy the BaGest directory over to your hosting area such as `C:\Inetpub\wwwroot\BaGest`
 3. Using IIS Manager, create a new Application Pool:
     - Name = `BaGestAppPool` (can be whatever you want)
