@@ -230,6 +230,7 @@ public class PackageModel : PageModel
                 Version = p.Version,
                 Downloads = p.Downloads,
                 Selected = p.Version == selectedVersion,
+                IsDeprecated = p.IsDeprecated,
                 LastUpdated = p.Published,
             })
             .OrderByDescending(m => m.Version)
@@ -281,6 +282,7 @@ public class PackageModel : PageModel
         public NuGetVersion Version { get; set; }
         public long Downloads { get; set; }
         public bool Selected { get; set; }
+        public bool IsDeprecated { get; set; }
         public DateTime LastUpdated { get; set; }
     }
 

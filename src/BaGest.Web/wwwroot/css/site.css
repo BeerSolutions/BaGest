@@ -217,6 +217,11 @@ h4 {
   margin-left: 32px;
 }
 
+.deprecated-version {
+  color: var(--alert-warning-text-color);
+  margin-left: 4px;
+}
+
 /* Navigation
 -------------------------------------------------- */
 #navbar ul {

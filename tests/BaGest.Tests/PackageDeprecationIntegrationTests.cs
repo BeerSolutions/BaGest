@@ -20,9 +20,11 @@ public class PackageDeprecationIntegrationTests : IDisposable
     private readonly BaGestApplication _app;
     private readonly HttpClient _client;
     private readonly Stream _packageStream;
+    private readonly ITestOutputHelper _output;
 
     public PackageDeprecationIntegrationTests(ITestOutputHelper output)
     {
+        _output = output;
         _app = new BaGestApplication(output, inMemoryConfiguration: dict => dict.Add("ApiKey", ApiKey));
         _client = _app.CreateClient();
         _packageStream = TestResources.GetResourceStream(TestResources.Package);
@@ -92,7 +94,7 @@ public class PackageDeprecationIntegrationTests : IDisposable
     {
         // Arrange
         await _app.AddPackageAsync(_packageStream);
-        using var first = await SendAsync(HttpMethod.Put, DeprecationUrl, ApiKey, """
+        await DeprecateAsync("""
             { "reasons": ["Legacy"], "message": "Old message", "alternatePackageId": "TestData.Next" }
             """);
 
@@ -117,15 +119,12 @@ public class PackageDeprecationIntegrationTests : IDisposable
     {
         // Arrange
         await _app.AddPackageAsync(_packageStream);
-        using var deprecate = await SendAsync(HttpMethod.Put, DeprecationUrl, ApiKey, """
-            { "reasons": ["Legacy"] }
-            """);
+        await DeprecateAsync("""{ "reasons": ["Legacy"] }""");
 
         // Act
         using var response = await SendAsync(HttpMethod.Delete, DeprecationUrl, ApiKey);
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, deprecate.StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Null(await GetDeprecationJsonOrNullAsync());
     }
@@ -173,7 +172,7 @@ public class PackageDeprecationIntegrationTests : IDisposable
     {
         // Arrange
         await _app.AddPackageAsync(_packageStream);
-        using var deprecate = await SendAsync(HttpMethod.Put, DeprecationUrl, ApiKey, """{ "reasons": ["Legacy"] }""");
+        await DeprecateAsync("""{ "reasons": ["Legacy"] }""");
 
         // Act
         using var response = await SendAsync(HttpMethod.Delete, DeprecationUrl, "wrong-key");
@@ -215,12 +214,73 @@ public class PackageDeprecationIntegrationTests : IDisposable
         // Arrange
         await _app.AddPackageAsync(_packageStream);
         using var unlist = await SendAsync(HttpMethod.Delete, "api/v2/package/TestData/1.2.3", ApiKey);
+        Assert.Equal(HttpStatusCode.NoContent, unlist.StatusCode);
 
         // Act
         using var response = await SendAsync(HttpMethod.Put, DeprecationUrl, ApiKey, """{ "reasons": ["Legacy"] }""");
 
         // Assert
-        Assert.Equal(HttpStatusCode.NoContent, unlist.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.NotNull(await GetDeprecationJsonOrNullAsync());
+    }
+
+    [Fact]
+    public async Task Deprecation_ReadOnlyMode_ReturnsUnauthorized()
+    {
+        // Arrange
+        using var app = new BaGestApplication(_output, inMemoryConfiguration: dict => dict.Add("IsReadOnlyMode", "true"));
+        using var client = app.CreateClient();
+        await app.AddPackageAsync(_packageStream);
+
+        using var deprecate = new HttpRequestMessage(HttpMethod.Put, DeprecationUrl)
+        {
+            Content = new StringContent("""{ "reasons": ["Legacy"] }""", Encoding.UTF8, "application/json"),
+        };
+        using var undeprecate = new HttpRequestMessage(HttpMethod.Delete, DeprecationUrl);
+
+        // Act
+        using var deprecateResponse = await client.SendAsync(deprecate);
+        using var undeprecateResponse = await client.SendAsync(undeprecate);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, deprecateResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, undeprecateResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task PackagePage_DeprecatedPackage_ShowsDeprecation()
+    {
+        // Arrange
+        await _app.AddPackageAsync(_packageStream);
+        await DeprecateAsync("""
+            { "reasons": ["Legacy"], "message": "Use TestData.Next instead.", "alternatePackageId": "TestData.Next" }
+            """);
+
+        // Act
+        var html = await _client.GetStringAsync("packages/TestData/1.2.3");
+
+        // Assert
+        Assert.Contains("This package has been deprecated as it is legacy and is no longer maintained.", html);
+        Assert.Contains("Use TestData.Next instead.", html);
+        Assert.Contains("href=\"/packages/testdata.next\"", html);
+    }
+
+    [Fact]
+    public async Task PackagePage_PackageNotDeprecated_ShowsNoDeprecation()
+    {
+        // Arrange
+        await _app.AddPackageAsync(_packageStream);
+
+        // Act
+        var html = await _client.GetStringAsync("packages/TestData/1.2.3");
+
+        // Assert
+        Assert.DoesNotContain("deprecation-banner", html);
+    }
+
+    private async Task DeprecateAsync(string jsonBody)
+    {
+        using var response = await SendAsync(HttpMethod.Put, DeprecationUrl, ApiKey, jsonBody);
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
