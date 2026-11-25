@@ -3,7 +3,10 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
+using BaGest.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -437,6 +440,25 @@ public class ApiIntegrationTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal(reason, body);
         Assert.Equal(reason, response.ReasonPhrase);
+    }
+
+    [Fact]
+    public async Task PushWhenStorageHoldsOrphanedFileReturnsConflictWithExplanation()
+    {
+        // Simulate a storage that is out of sync with the database: the package file is in the
+        // storage, but the database has no entry for it.
+        var storage = _app.Services.GetRequiredService<IStorageService>();
+        var orphanPath = Path.Combine("packages", "testdata", "1.2.3", "testdata.1.2.3.nupkg");
+        using var orphan = new MemoryStream(Encoding.UTF8.GetBytes("a different package"));
+        Assert.Equal(StoragePutResult.Success, await storage.PutAsync(orphanPath, orphan, "binary/octet-stream"));
+
+        using var content = new StreamContent(_packageStream);
+        using var response = await _client.PutAsync("api/v2/package", content);
+        var body = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Contains("out of sync", body);
+        Assert.Contains("push again", body);
     }
 
     public void Dispose()

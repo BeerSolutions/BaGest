@@ -182,7 +182,7 @@ public class PackageStorageServiceTests
             using var readmeStream = StringStream("My readme");
             using var iconStream = StringStream("My icon");
             // Act
-            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<PackageStorageConflictException>(() =>
                 _target.SavePackageContentAsync(
                     _package,
                     packageStream: packageStream,

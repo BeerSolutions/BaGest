@@ -21,6 +21,13 @@ public enum PackageIndexingResult
     PackageAlreadyExists,
 
     /// <summary>
+    /// The package's content could not be stored because a different file already exists in the storage
+    /// at the same path, while the database has no entry for the package. This usually means the storage
+    /// and the database are out of sync, or that the same package is being pushed concurrently.
+    /// </summary>
+    StorageConflict,
+
+    /// <summary>
     /// The package has been indexed successfully.
     /// </summary>
     Success,

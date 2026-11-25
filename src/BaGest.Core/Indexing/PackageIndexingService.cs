@@ -142,6 +142,21 @@ public class PackageIndexingService : IPackageIndexingService
                 iconStream,
                 cancellationToken);
         }
+        catch (PackageStorageConflictException e)
+        {
+            // The database has no entry for this package (checked above), yet the storage already holds a
+            // different file at the same path. Overwriting is deliberately avoided: the file may belong to a
+            // package that a concurrent push is just about to register.
+            _logger.LogWarning(
+                e,
+                "Package {PackageId} {PackageVersion} is not in the database, but the storage already contains a different file at {Path}. " +
+                "The storage and the database are likely out of sync. Remove the orphaned files from the storage and push again.",
+                package.Id,
+                package.NormalizedVersionString,
+                e.Path);
+
+            return PackageIndexingResult.StorageConflict;
+        }
         catch (Exception e)
         {
             // This may happen due to concurrent pushes.
