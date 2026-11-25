@@ -18,9 +18,10 @@ public interface IPackageDeletionService
     /// <param name="maxMinor">Maximum of minor versions to keep (optional)</param>
     /// <param name="maxPatch">Maximum of patch versions to keep (optional)</param>
     /// <param name="maxPrerelease">Maximum of pre-release versions (optional)</param>
+    /// <param name="deletePrereleasesOfOlderMajors">Delete all pre-release versions whose major version is lower than the highest major version that has a stable release</param>
     /// <param name="cancellationToken">Cancel the operation</param>
     /// <returns>Number of packages deleted</returns>
-    Task<int> DeleteOldVersionsAsync(Package package, uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, CancellationToken cancellationToken);
+    Task<int> DeleteOldVersionsAsync(Package package, uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, bool deletePrereleasesOfOlderMajors, CancellationToken cancellationToken);
 
     /// <summary>
     /// Attempt to delete a package.

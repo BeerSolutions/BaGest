@@ -217,13 +217,14 @@ public class PackageIndexingServiceTests
     }
 
     [Theory]
-    [InlineData(null, null, null, null, false)]
-    [InlineData(1u, null, null, null, true)]
-    [InlineData(null, 1u, null, null, true)]
-    [InlineData(null, null, 1u, null, true)]
-    [InlineData(null, null, null, 1u, true)]
+    [InlineData(null, null, null, null, false, false)]
+    [InlineData(1u, null, null, null, false, true)]
+    [InlineData(null, 1u, null, null, false, true)]
+    [InlineData(null, null, 1u, null, false, true)]
+    [InlineData(null, null, null, 1u, false, true)]
+    [InlineData(null, null, null, null, true, true)]
     public async Task IndexAsync_RunsRetention_WhenAnyLimitIsConfigured(
-        uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, bool retentionRuns)
+        uint? maxMajor, uint? maxMinor, uint? maxPatch, uint? maxPrerelease, bool deletePrereleasesOfOlderMajors, bool retentionRuns)
     {
         // Arrange
         _mockOptions.AllowPackageOverwrites = PackageOverwriteAllowed.False;
@@ -231,6 +232,7 @@ public class PackageIndexingServiceTests
         _retentionOptions.MaxMinorVersions = maxMinor;
         _retentionOptions.MaxPatchVersions = maxPatch;
         _retentionOptions.MaxPrereleaseVersions = maxPrerelease;
+        _retentionOptions.DeletePrereleasesOfOlderMajors = deletePrereleasesOfOlderMajors;
 
         var builder = new PackageBuilder
         {
@@ -251,7 +253,7 @@ public class PackageIndexingServiceTests
         _storage.Setup(s => s.SavePackageContentAsync(It.IsAny<Package>(), stream, It.IsAny<FileStream>(), default, default, default)).Returns(Task.CompletedTask);
         _search.Setup(s => s.IndexAsync(It.IsAny<Package>(), default)).Returns(Task.CompletedTask);
         _deleter
-            .Setup(d => d.DeleteOldVersionsAsync(It.IsAny<Package>(), maxMajor, maxMinor, maxPatch, maxPrerelease, default))
+            .Setup(d => d.DeleteOldVersionsAsync(It.IsAny<Package>(), maxMajor, maxMinor, maxPatch, maxPrerelease, deletePrereleasesOfOlderMajors, default))
             .ReturnsAsync(0);
 
         // Act
@@ -260,7 +262,7 @@ public class PackageIndexingServiceTests
         // Assert
         Assert.Equal(PackageIndexingResult.Success, result);
         _deleter.Verify(
-            d => d.DeleteOldVersionsAsync(It.IsAny<Package>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<uint?>(), default),
+            d => d.DeleteOldVersionsAsync(It.IsAny<Package>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<uint?>(), It.IsAny<bool>(), default),
             retentionRuns ? Times.Once : Times.Never);
     }
 

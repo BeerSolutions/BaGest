@@ -36,11 +36,20 @@ public class RetentionOptions
     public uint? MaxPrereleaseVersions { get; set; }
 
     /// <summary>
-    /// Whether at least one retention limit is configured. When none is, retention never runs.
+    /// If this is set to <c>true</c>, every prerelease version whose major version is lower than the highest major version
+    /// that has a stable release is deleted. Disabled by default.
+    /// For example, once 3.0.0 exists, 2.1.0-beta.1 and 1.0.0-rc.1 are deleted, while 3.1.0-beta.1 and 4.0.0-alpha.1 are kept.
+    /// Stable versions are never affected by this option, and neither is the version being pushed or mirrored.
+    /// </summary>
+    public bool DeletePrereleasesOfOlderMajors { get; set; }
+
+    /// <summary>
+    /// Whether at least one retention limit or rule is configured. When none is, retention never runs.
     /// </summary>
     public bool HasAnyLimit =>
         MaxMajorVersions.HasValue
         || MaxMinorVersions.HasValue
         || MaxPatchVersions.HasValue
-        || MaxPrereleaseVersions.HasValue;
+        || MaxPrereleaseVersions.HasValue
+        || DeletePrereleasesOfOlderMajors;
 }
