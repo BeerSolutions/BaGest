@@ -204,7 +204,6 @@ else
                                 var version = Model.Versions[i];
                                 var alwaysShow = Json.Serialize(i < DefaultVisibleVersions);
 
-                                <!-- BS5: bg-info -> table-info für die Zeile -->
                                 <tr class="@(version.Selected ? "table-info" : "")" x-show="showAll || @alwaysShow">
                                     <td>
                                         <a asp-page="Package" asp-route-version="@version.Version">@version.Version.ToNormalizedString()</a>

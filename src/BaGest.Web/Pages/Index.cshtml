@@ -86,7 +86,6 @@ else
         <div class="card search-result mb-3">
             <div class="card-body">
                 <div class="d-flex">
-                    <!-- Icon links, feste Breite -->
                     <div class="me-3 d-none d-md-block" style="flex-shrink: 0;">
                         <img src="@package.IconUrl"
                             class="img-fluid rounded"
@@ -94,7 +93,6 @@ else
                             onerror="this.src='@Url.Content("~/_content/BaGest.Web/images/default-package-icon-256x256.png")'"
                             alt="The package icon" />
                     </div>
-                    <!-- Text rechts, nimmt restlichen Platz ein -->
                     <div class="flex-grow-1">
                         <div>
                             <a asp-page="Package" asp-route-id="@package.PackageId" asp-route-version="@package.Version" class="package-title fs-5 fw-bold text-decoration-none">
