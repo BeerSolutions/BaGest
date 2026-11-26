@@ -79,7 +79,7 @@ public static class AwsApplicationExtensions
 
     internal static AmazonS3Config CreateS3Config(S3StorageOptions options)
     {
-        return options.Endpoint != null
+        var config = options.Endpoint != null
             ? new AmazonS3Config
             {
                 ServiceURL = options.Endpoint.AbsoluteUri,
@@ -92,6 +92,15 @@ public static class AwsApplicationExtensions
                 RegionEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 ForcePathStyle = options.ForcePathStyle
             };
+
+        // Apply checksum calculation policy (AWSSDK 4 default is WHEN_SUPPORTED).
+        // For S3-compatible services that reject optional checksums, set this to false.
+        if (!options.RequestChecksumCalculation)
+        {
+            config.RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED;
+        }
+
+        return config;
     }
 
     private static async Task<AWSCredentials> AssumeRoleAsync(

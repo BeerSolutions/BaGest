@@ -108,6 +108,32 @@ public class S3StorageTests
         Assert.True(new S3StorageOptions().UseChunkEncoding);
     }
 
+    [Fact]
+    public void RequestChecksumCalculationIsEnabledByDefault()
+    {
+        Assert.True(new S3StorageOptions().RequestChecksumCalculation);
+    }
+
+    [Fact]
+    public void ChecksumCalculationKeepsTheSdkDefaultWhenEnabled()
+    {
+        var options = new S3StorageOptions { Region = "eu-west-1", RequestChecksumCalculation = true };
+
+        var config = AwsApplicationExtensions.CreateS3Config(options);
+
+        Assert.Equal(new AmazonS3Config().RequestChecksumCalculation, config.RequestChecksumCalculation);
+    }
+
+    [Fact]
+    public void ChecksumsAreCalculatedOnlyWhenRequiredWhenDisabled()
+    {
+        var options = new S3StorageOptions { Region = "eu-west-1", RequestChecksumCalculation = false };
+
+        var config = AwsApplicationExtensions.CreateS3Config(options);
+
+        Assert.Equal(RequestChecksumCalculation.WHEN_REQUIRED, config.RequestChecksumCalculation);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
