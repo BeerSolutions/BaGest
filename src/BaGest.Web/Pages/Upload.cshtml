@@ -18,8 +18,8 @@
     <div class="tabbed-info mt-4" x-data="{ tabs: tabs, active: tabs[0] }">
         <ul class="nav nav-tabs mb-3">
             <template x-for="tab in tabs" :key="tab.name">
-                <li class="nav-item" x-bind:class="{ 'active': active.name === tab.name }">
-                    <a class="nav-link" href="#" x-text="tab.name" @@click="active = tab"></a>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" x-bind:class="{ 'active': active.name === tab.name }" x-text="tab.name" @@click="active = tab"></a>
                 </li>
             </template>
         </ul>
