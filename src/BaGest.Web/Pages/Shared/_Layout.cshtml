@@ -22,36 +22,30 @@
         <title>@ViewData["Title"] - BaGest</title>
     </head>
     <body>
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation">
-                <div class="container">
-                    <div class="row w-100 align-items-center">
-                        <div id="navbar" class="col-sm-12">
-                            <ul class="navbar-nav" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a asp-area="" asp-page="/Index" class="nav-link" role="tab"><span>Packages</span></a>
+            <header>
+                <nav class="navbar navbar-expand-lg navbar-dark">
+                    <div class="container flex-wrap">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a asp-area="" asp-page="/Index" class="nav-link"><span>Packages</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a asp-area="" asp-page="/Upload" class="nav-link"><span>Upload</span></a>
+                            </li>
+                            @if (StatisticsOptions.Value.EnableStatisticsPage)
+                            {
+                                <li class="nav-item">
+                                    <a asp-area="" asp-page="/Statistics" class="nav-link"><span>Statistics</span></a>
                                 </li>
-                                <li class="nav-item" role="presentation">
-                                    <a asp-area="" asp-page="/Upload" class="nav-link" role="tab"><span>Upload</span></a>
-                                </li>
-                                @if (StatisticsOptions.Value.EnableStatisticsPage)
-                                {
-                                    <li class="nav-item" role="presentation">
-                                        <a asp-area="" asp-page="/Statistics" class="nav-link" role="tab"><span>Statistics</span></a>
-                                    </li>
-                                }
-                                <li class="nav-item" role="presentation">
-                                    <a class="nav-link" role="tab" href="https://beersolutions.github.io/BaGest/docs" target="_blank" rel="noopener noreferrer">
-                                        <span>Documentation</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="container search-container mt-2">
-                    <div class="row">
-                        <form class="col-sm-12" action="@Url.Page("/Index")" method="get">
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://beersolutions.github.io/BaGest/docs" target="_blank" rel="noopener noreferrer">
+                                    <span>Documentation</span>
+                                </a>
+                            </li>
+                        </ul>
+
+                        <form class="d-flex" action="@Url.Page("/Index")" method="get" role="search">
                             <div class="input-group">
                                 <input type="text"
                                     name="q"
@@ -59,20 +53,22 @@
                                     class="form-control"
                                     autoComplete="off"
                                     placeholder="Search packages..." />
-
-                                <button type="submit"
-                                        class="btn btn-outline-secondary"
-                                        title="Search for packages">
+                                <button type="submit" class="btn btn-outline-warning" title="Search for packages">
                                     <span class="ms-Icon ms-Icon--Search" aria-hidden="true"></span>
                                 </button>
                             </div>
-
-                            @await RenderSectionAsync("SearchForm", required: false)
                         </form>
                     </div>
-                </div>
-            </nav>
-        </header>
+                </nav>
+                
+                <!-- Die Suchfilter (SearchForm Section) bleiben separat -->
+                @if (IsSectionDefined("SearchForm"))
+                {
+                    <div class="container mt-3">
+                        @await RenderSectionAsync("SearchForm", required: false)
+                    </div>
+                }
+            </header>
 
         <main role="main" class="container main-container">
             @RenderBody()
