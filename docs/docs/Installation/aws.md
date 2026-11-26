@@ -79,6 +79,44 @@ If your S3-compatible service (such as a local [MinIO](https://github.com/minio/
 
 Services that do not support chunked payload signing (`aws-chunked` uploads) can be used by setting `UseChunkEncoding` to `false`. It defaults to `true`.
 
+```json
+{
+    ...
+
+    "Storage": {
+        "Type": "AwsS3",
+        "Endpoint": "http://localhost:9000",
+        "ForcePathStyle": true,
+        "UseChunkEncoding": false,           // Set to false for services that require it
+        "Bucket": "nuget-packages",
+        "AccessKey": "minioadmin",
+        "SecretKey": "minioadmin"
+    },
+
+    ...
+}
+```
+
+Additionally, the AWS SDK v4 calculates request checksums by default. Some S3-compatible services (like MinIO) may reject these optional checksums. If you encounter upload errors, you can disable this behavior by setting `RequestChecksumCalculation` to `false`. When set to `false`, checksums are only calculated when the operation strictly requires them. It defaults to `true`.
+
+```json
+{
+    ...
+
+    "Storage": {
+        "Type": "AwsS3",
+        "Endpoint": "http://localhost:9000",
+        "ForcePathStyle": true,
+        "RequestChecksumCalculation": false, // Required if the service rejects default checksums
+        "Bucket": "nuget-packages",
+        "AccessKey": "minioadmin",
+        "SecretKey": "minioadmin"
+    },
+
+    ...
+}
+```
+
 #### Known compatible services
 
 So far, it has been tested with [Linode’s Object Storage](https://www.linode.com/docs/products/storage/object-storage/) and [MinIO](https://github.com/minio/minio). If you succeed in using other storage service, let us know so we can state it here.

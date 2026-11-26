@@ -31,6 +31,14 @@ public class S3StorageOptions : IValidatableObject
     /// </summary>
     public bool UseChunkEncoding { get; set; } = true;
 
+    /// <summary>
+    /// Whether the SDK should calculate request checksums whenever a service supports them.
+    /// Set this to false for S3-compatible services (such as MinIO) that reject
+    /// the default checksums introduced in AWSSDK 4. When false, checksums are
+    /// only calculated when the operation strictly requires them.
+    /// </summary>
+    public bool RequestChecksumCalculation { get; set; } = true;
+
     [Required]
     public string Bucket { get; set; }
 
