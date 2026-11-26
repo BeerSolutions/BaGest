@@ -97,7 +97,7 @@ public static class AwsApplicationExtensions
         // For S3-compatible services that reject optional checksums, set this to false.
         if (!options.RequestChecksumCalculation)
         {
-            config.RequestChecksumCalculation = RequestChecksumCalculation.WhenRequired;
+            config.RequestChecksumCalculation = RequestChecksumCalculation.WHEN_REQUIRED;
         }
 
         return config;
