@@ -82,7 +82,7 @@ public class DatabaseSearchService : ISearchService
     {
         IQueryable<Package> search = _context.Packages;
 
-        search = ApplySearchQuery(search, request.Query);
+        search = ApplyAutocompleteQuery(search, request.Query);
         search = ApplySearchFilters(
             search,
             request.IncludePrerelease,
@@ -141,29 +141,59 @@ public class DatabaseSearchService : ISearchService
 
         return _searchBuilder.BuildDependents(dependents);
     }
-
-    private IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
+    
+    private static IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
     {
         if (string.IsNullOrWhiteSpace(search))
         {
             return query;
         }
 
-        // Split the search term into individual keywords to support AND matching
-        var keywords = search.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        // Decode URL-encoded characters (like %20 for space) before splitting
+        search = Uri.UnescapeDataString(search);
+
+        // De-duplicate keywords and cap at 10 to prevent SQLite/SQL expression tree limits
+        var keywords = search
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Distinct()
+            .Take(10);
 
         foreach (var keyword in keywords)
         {
-            var term = keyword.ToLowerInvariant();
+            var term = keyword;
 
-            // Search across Id, Title, Description, and Summary.
-            // EF Core translates these .Contains() calls to SQL LIKE queries.
+            // Search across multiple fields for the main search endpoint
             query = query.Where(p => 
-                p.Id.ToLower().Contains(term) || 
-                (p.Title != null && p.Title.ToLower().Contains(term)) ||
-                (p.Description != null && p.Description.ToLower().Contains(term)) ||
-                (p.Summary != null && p.Summary.ToLower().Contains(term))
+                p.Id.Contains(term) || 
+                (p.Description != null && p.Description.Contains(term)) || 
+                (p.Summary != null && p.Summary.Contains(term)) ||
+                (p.Title != null && p.Title.Contains(term))
             );
+        }
+
+        return query;
+    }
+
+    private static IQueryable<Package> ApplyAutocompleteQuery(IQueryable<Package> query, string search)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+        {
+            return query;
+        }
+
+        search = Uri.UnescapeDataString(search);
+
+        var keywords = search
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Distinct()
+            .Take(10);
+
+        foreach (var keyword in keywords)
+        {
+            var term = keyword;
+
+            // Autocomplete should ONLY match the package ID
+            query = query.Where(p => p.Id.Contains(term));
         }
 
         return query;
