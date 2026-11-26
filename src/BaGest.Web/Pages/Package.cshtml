@@ -21,7 +21,7 @@ else
     <div class="row display-package">
         <aside class="col-sm-1 package-icon">
             <img src="@(Model.IconUrl ?? Url.Content("~/_content/BaGest.Web/images/default-package-icon-256x256.png"))"
-                 class="img-responsive"
+                 class="img-fluid"
                  onerror="this.src='@Url.Content("~/_content/BaGest.Web/images/default-package-icon-256x256.png")'"
                  alt="The package icon" />
         </aside>
@@ -64,10 +64,10 @@ else
             }
 
             <div class="tabbed-info" x-data="{ tabs: tabs, active: tabs[0] }">
-                <ul class="nav">
+                <ul class="nav nav-tabs mb-3">
                     <template x-for="tab in tabs" :key="tab.name">
-                        <li x-bind:class="{ active: tab.name === active.name }">
-                            <a href="#" x-text="tab.name" @@click="active = tab"></a>
+                        <li class="nav-item" x-bind:class="{ 'active': tab.name === active.name }">
+                            <a class="nav-link" href="#" x-text="tab.name" @@click="active = tab"></a>
                         </li>
                     </template>
                 </ul>
@@ -76,11 +76,11 @@ else
                     <div class="script" x-text="`${active.prefix} ${active.content}`"></div>
 
                     <div class="copy-button">
-                        <button class="btn btn-default btn-warning"
+                        <button class="btn btn-outline-warning btn-sm"
                                 type="button"
-                                data-tottle="popover"
-                                data-placement="bottom"
-                                data-content="Copied"
+                                data-bs-toggle="popover"
+                                data-bs-placement="bottom"
+                                data-bs-content="Copied"
                                 @@click="window.baget.copyTextToClipboard(active.content.join('\n'), $el)">
                             <i class="ms-Icon ms-Icon--Copy"></i>
                         </button>
@@ -114,11 +114,11 @@ else
                         {
                             <p>Showing the top 20 packages that depend on @Model.Package.Id.</p>
                             <div>
-                                <table>
+                                <table class="table table-sm table-hover mt-3">
                                     <thead>
                                         <tr>
-                                            <th class="col-sm-10">Packages</th>
-                                            <th class="col-sm-2">Downloads</th>
+                                            <th style="width: 80%;">Packages</th>
+                                            <th style="width: 20%;">Downloads</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -127,7 +127,7 @@ else
                                             <tr>
                                                 <td>
                                                     <a href="@Url.Page("/Package", new { package.Id })">@package.Id</a>
-                                                    <div>@package.Description</div>
+                                                    <div class="text-muted small">@package.Description</div>
                                                 </td>
                                                 <td>
                                                     <i class="ms-Icon ms-Icon--Download" aria-hidden="true"></i>
@@ -190,7 +190,7 @@ else
 
             @{ ExpandableSection("Versions", "ms-Icon--Stopwatch", expanded: true,
                 @<div class="version-list" x-data="{ showAll: false }">
-                    <table class="table borderless">
+                    <table class="table table-borderless table-sm">
                         <thead>
                             <tr>
                                 <th>Version</th>
@@ -204,7 +204,8 @@ else
                                 var version = Model.Versions[i];
                                 var alwaysShow = Json.Serialize(i < DefaultVisibleVersions);
 
-                                <tr class="@(version.Selected ? "bg-info" : "")" x-show="showAll || @alwaysShow">
+                                <!-- BS5: bg-info -> table-info für die Zeile -->
+                                <tr class="@(version.Selected ? "table-info" : "")" x-show="showAll || @alwaysShow">
                                     <td>
                                         <a asp-page="Package" asp-route-version="@version.Version">@version.Version.ToNormalizedString()</a>
                                         @if (version.IsDeprecated)
@@ -305,7 +306,7 @@ else
                     <p>
                         @foreach(var tag in Model.Package.Tags)
                         {
-                            <span class="tag">@tag</span>
+                            <span class="tag badge bg-secondary me-1 mb-1">@tag</span>
                         }
                     </p>
                 </div>

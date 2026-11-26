@@ -26,64 +26,53 @@
     }
 }
 
-<div class="search-options form-inline">
-    <div class="form-group">
-        <label>Package type:</label>
-
-        <div class="search-dropdown">
-            <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="package-type" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    @PackageTypes.GetValueOrDefault(Model.PackageType, "Other")
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="package-type">
-                    @foreach (var packageType in PackageTypes)
-                    {
-                        <li><a href="@SearchLink(packageType: packageType.Key, page: 1)">@packageType.Value</a></li>
-                    }
-                </ul>
-            </div>
+<div class="search-options d-flex flex-wrap align-items-center mb-4 gap-3">
+    <div class="d-flex align-items-center">
+        <label class="me-2 mb-0 fw-bold">Package type:</label>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="package-type" data-bs-toggle="dropdown" aria-expanded="false">
+                @PackageTypes.GetValueOrDefault(Model.PackageType, "Other")
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="package-type">
+                @foreach (var packageType in PackageTypes)
+                {
+                    <li><a class="dropdown-item" href="@SearchLink(packageType: packageType.Key, page: 1)">@packageType.Value</a></li>
+                }
+            </ul>
         </div>
     </div>
 
-    <div class="form-group">
-        <label>Framework:</label>
-
-        <div class="search-dropdown">
-            <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="framework" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    @TargetFrameworks.GetValueOrDefault(Model.Framework, "Other")
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="framework">
-                    @foreach (var framework in TargetFrameworks)
+    <div class="d-flex align-items-center">
+        <label class="me-2 mb-0 fw-bold">Framework:</label>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="framework" data-bs-toggle="dropdown" aria-expanded="false">
+                @TargetFrameworks.GetValueOrDefault(Model.Framework, "Other")
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="framework">
+                @foreach (var framework in TargetFrameworks)
+                {
+                    @if (framework.Key.StartsWith("divider"))
                     {
-                        @if (framework.Key.StartsWith("divider"))
-                        {
-                            <li role="separator" class="divider"></li>
-                        }
-                        else if (framework.Key.StartsWith("header"))
-                        {
-                            <li class="dropdown-header">@framework.Value</li>
-                        }
-                        else
-                        {
-                            <li><a href="@SearchLink(framework: framework.Key, page: 1)">@framework.Value</a></li>
-                        }
+                        <li><hr class="dropdown-divider"></li>
                     }
-                </ul>
-            </div>
+                    else if (framework.Key.StartsWith("header"))
+                    {
+                        <li><h6 class="dropdown-header">@framework.Value</h6></li>
+                    }
+                    else
+                    {
+                        <li><a class="dropdown-item" href="@SearchLink(framework: framework.Key, page: 1)">@framework.Value</a></li>
+                    }
+                }
+            </ul>
         </div>
     </div>
 
-    <div class="form-group form-check">
-        <label for="prerelease">Include prerelease:</label>
-
-        <input
-            type="checkbox"
-            id="prerelease"
-            @(Model.Prerelease ? "checked='checked'" : "")
-            onclick="window.location.href='@SearchLink(prerelease: !Model.Prerelease, page: 1)'" />
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="prerelease" @(Model.Prerelease ? "checked='checked'" : "") onclick="window.location.href='@SearchLink(prerelease: !Model.Prerelease, page: 1)'" />
+        <label class="form-check-label" for="prerelease">
+            Include prerelease
+        </label>
     </div>
 </div>
 
@@ -103,24 +92,24 @@ else
 {
     @foreach (var package in Model.Packages)
     {
-        <div class="row search-result">
-            <div class="col-sm-1 hidden-xs hidden-sm">
+        <div class="row search-result mb-4">
+            <div class="col-md-1 d-none d-md-block">
                 <img src="@package.IconUrl"
-                     class="package-icon img-responsive"
+                     class="package-icon img-fluid"
                      onerror="this.src='@Url.Content("~/_content/BaGest.Web/images/default-package-icon-256x256.png")'"
                      alt="The package icon" />
             </div>
-            <div class="col-sm-11">
+            <div class="col-md-11">
                 <div>
                     <a asp-page="Package"
                        asp-route-id="@package.PackageId"
                        asp-route-version="@package.Version"
-                       class="package-title">
+                       class="package-title fs-5 fw-bold text-decoration-none">
                         @package.PackageId
                     </a>
-                    <span>by: @string.Join(", ", package.Authors)</span>
+                    <span class="text-muted">by: @string.Join(", ", package.Authors)</span>
                 </div>
-                <ul class="info">
+                <ul class="info list-unstyled mt-2 text-muted">
                     <li>
                         <span>
                             <i class="ms-Icon ms-Icon--Download"></i>
@@ -143,7 +132,7 @@ else
                         </li>
                     }
                 </ul>
-                <div>
+                <div class="mt-2">
                     @package.Description
                 </div>
             </div>
@@ -156,15 +145,15 @@ else
     if (showPreviousLink || showNextLink)
     {
         <nav aria-label="Search page navigation">
-            <ul class="pager">
+            <ul class="pagination">
                 @if (showPreviousLink)
                 {
-                    <li><a href="@SearchLink(page:Model.PageIndex - 1)">Previous</a></li>
+                    <li class="page-item"><a class="page-link" href="@SearchLink(page:Model.PageIndex - 1)">Previous</a></li>
                 }
 
                 @if (showNextLink)
                 {
-                    <li><a href="@SearchLink(page: Model.PageIndex + 1)">Next</a></li>
+                    <li class="page-item"><a class="page-link" href="@SearchLink(page: Model.PageIndex + 1)">Next</a></li>
                 }
             </ul>
         </nav>
@@ -172,7 +161,7 @@ else
 }
 
 @functions {
-
+    
     private IReadOnlyDictionary<string, string> PackageTypes { get; } = new Dictionary<string, string>()
     {
         { "any", "Any" },
@@ -245,13 +234,11 @@ else
         bool? prerelease = null,
         int? page = null)
     {
-        // Use model's value if the argument was skipped.
         packageType = packageType ?? Model.PackageType;
         framework = framework ?? Model.Framework;
         prerelease = prerelease ?? Model.Prerelease;
         page = page ?? Model.PageIndex;
 
-        // Remove query parameters that have default value
         if (packageType == "any") packageType = null;
         if (framework == "any") framework = null;
         if (prerelease == true) prerelease = null;
