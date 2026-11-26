@@ -142,17 +142,31 @@ public class DatabaseSearchService : ISearchService
         return _searchBuilder.BuildDependents(dependents);
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1862:Use the 'StringComparison' method overloads to perform case-insensitive string comparisons", Justification = "Not for EF queries")]
-    private static IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
+    private IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
     {
-        if (string.IsNullOrEmpty(search))
+        if (string.IsNullOrWhiteSpace(search))
         {
             return query;
         }
 
-        search = search.ToLowerInvariant();
+        // Split the search term into individual keywords to support AND matching
+        var keywords = search.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-        return query.Where(p => p.Id.ToLower().Contains(search));
+        foreach (var keyword in keywords)
+        {
+            var term = keyword.ToLowerInvariant();
+
+            // Search across Id, Title, Description, and Summary.
+            // EF Core translates these .Contains() calls to SQL LIKE queries.
+            query = query.Where(p => 
+                p.Id.ToLower().Contains(term) || 
+                (p.Title != null && p.Title.ToLower().Contains(term)) ||
+                (p.Description != null && p.Description.ToLower().Contains(term)) ||
+                (p.Summary != null && p.Summary.ToLower().Contains(term))
+            );
+        }
+
+        return query;
     }
 
     private static IQueryable<Package> ApplySearchFilters(
