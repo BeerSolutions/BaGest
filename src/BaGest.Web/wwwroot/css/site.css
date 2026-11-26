@@ -138,7 +138,7 @@ h4 {
   font-size: 20px;
 }
 
-/* BS5 Support für alte Klasse */
+/* BS5 Support for legacy class */
 .img-responsive {
   display: block;
   max-width: 100%;
@@ -213,7 +213,7 @@ h4 {
 -------------------------------------------------- */
 .navbar {
   border-radius: 0;
-  /* WICHTIG: Überschreibt das bg-dark aus der Layout.cshtml, damit die Variable greift */
+  /* IMPORTANT: Overrides bg-dark from Layout.cshtml so the variable takes effect */
   background-color: var(--navbar-bg-color) !important; 
   border-bottom: 1px solid var(--navbar-border-color);
 }
@@ -356,7 +356,7 @@ h4 {
   text-decoration: underline;
 }
 
-/* Flexbox für den Code-Block */
+/* Flexbox for the code block */
 .tabbed-info .content {
   display: flex;
   align-items: stretch;
@@ -524,28 +524,32 @@ code {
   color: var(--code-text-color);
 }
 
-/* BS5 Overrides für Dark Mode / Dropdowns & Tabellen
+/* BS5 Overrides for Dark Mode / Dropdowns & Tables
 -------------------------------------------------- */
 .dropdown-menu {
-  background-color: var(--footer-bg-color);
-  border-color: var(--navbar-border-color);
-  border-radius: 0;
+  /* We override the internal BS5 variables with our theme variables */
+  --bs-dropdown-bg: var(--body-bg-color);
+  --bs-dropdown-color: var(--text-color);
+  --bs-dropdown-border-color: var(--navbar-border-color);
+  --bs-dropdown-border-radius: 0;
+  
+  --bs-dropdown-link-color: var(--text-color);
+  --bs-dropdown-link-hover-color: var(--navbar-active-text-color);
+  --bs-dropdown-link-hover-bg: var(--tabbed-info-bg-color);
+  --bs-dropdown-link-active-color: #fff;
+  --bs-dropdown-link-active-bg: var(--search-button-bg-color);
 }
 
-.dropdown-item {
-  color: var(--text-color);
-}
-
-.dropdown-item:hover, .dropdown-item:focus {
-  background-color: var(--tabbed-info-bg-color);
-  color: var(--navbar-active-text-color);
+/* Adjust the small triangle at the top of the dropdown (arrow) */
+.dropdown-menu::before {
+  display: none; /* If an arrow is present, we hide it for a flatter look */
 }
 
 .dropdown-divider {
   border-top-color: var(--navbar-border-color);
 }
 
-/* Tabellen-Styling an deine Farbvariablen anpassen */
+/* Adapt table styling to your color variables */
 .table {
   --bs-table-bg: transparent;
   --bs-table-color: var(--text-color);
@@ -568,14 +572,14 @@ code {
 }
 
 .search-result .package-title {
-  color: var(--link-button-color); /* Nutzt deine Variable für Links */
+  color: var(--link-button-color); /* Uses your variable for links */
 }
 
 .search-result .package-title:hover {
   text-decoration: underline !important;
 }
 
-/* Tags (im Package Detail & Index)
+/* Tags (in Package Detail & Index)
 -------------------------------------------------- */
 .tag {
   background-color: var(--package-details-tag-bg-color);
@@ -585,10 +589,37 @@ code {
   border: 1px solid var(--navbar-border-color);
 }
 
-/* Dark mode Anpassung für Tags, damit sie sich abheben */
+/* Dark mode adjustment for tags so they stand out */
 @media (prefers-color-scheme: dark) {
   .tag {
     border-color: #555;
     color: #e3ebf1;
+  }
+}
+
+/* Search Filters Form
+-------------------------------------------------- */
+.search-options .form-control,
+.search-options .btn-outline-secondary {
+  /* So the buttons aren't too dark in dark mode or too bright in light mode */
+  color: var(--text-color);
+  border-color: var(--navbar-border-color);
+}
+
+.search-options .btn-outline-secondary:hover {
+  background-color: var(--tabbed-info-bg-color);
+  color: var(--navbar-active-text-color);
+}
+
+/* Adjust checkbox in dark mode (Bootstrap 5 otherwise sets it to white) */
+@media (prefers-color-scheme: dark) {
+  .search-options .form-check-input {
+    background-color: var(--body-bg-color);
+    border-color: var(--navbar-border-color);
+  }
+  
+  .search-options .form-check-input:checked {
+    background-color: var(--search-button-bg-color);
+    border-color: var(--search-button-border-color);
   }
 }
