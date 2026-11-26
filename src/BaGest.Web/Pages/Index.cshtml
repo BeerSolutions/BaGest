@@ -83,7 +83,7 @@ else
 {
     @foreach (var package in Model.Packages)
     {
-        <div class="card mb-3 bg-transparent border-secondary text-light">
+        <div class="card search-result mb-3">
             <div class="card-body">
                 <div class="d-flex">
                     <!-- Icon links, feste Breite -->
@@ -97,7 +97,7 @@ else
                     <!-- Text rechts, nimmt restlichen Platz ein -->
                     <div class="flex-grow-1">
                         <div>
-                            <a asp-page="Package" asp-route-id="@package.PackageId" asp-route-version="@package.Version" class="package-title fs-5 fw-bold text-warning text-decoration-none">
+                            <a asp-page="Package" asp-route-id="@package.PackageId" asp-route-version="@package.Version" class="package-title fs-5 fw-bold text-decoration-none">
                                 @package.PackageId
                             </a>
                             <span class="ms-2">by: @string.Join(", ", package.Authors)</span>
@@ -110,7 +110,7 @@ else
                                 <li><i class="ms-Icon ms-Icon--Tag"></i> @string.Join(" ", package.Tags)</li>
                             }
                         </ul>
-                        <div class="text-light">
+                        <div>
                             @package.Description
                         </div>
                     </div>
