@@ -50,18 +50,6 @@ jobs:
     timeout-minutes: 20
 
     services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_ROOT_PASSWORD: bagest-ci
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pbagest-ci"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 20
-
       postgres:
         image: postgres:17
         env:
@@ -90,6 +78,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+
+      # Not a service container: a periodic healthcheck would open connections that the
+      # connection-counting MySQL test sees in the server-wide counter.
+      - name: Start MySQL
+        run: |
+          docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=bagest-ci mysql:8.4
+          for i in $(seq 1 60); do
+            docker exec mysql mysqladmin ping -h 127.0.0.1 -uroot -pbagest-ci --silent && exit 0
+            sleep 2
+          done
+          docker logs mysql
+          exit 1
 
       # MinIO needs a command argument, which service containers cannot pass. The official minio images are no longer published, so use the Chainguard build.
       - name: Start MinIO
