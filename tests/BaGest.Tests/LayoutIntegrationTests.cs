@@ -93,6 +93,23 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Equal(new[] { "icon-text", "alert", "alert-warning" }, ClassesOf(note));
     }
 
+    [Fact]
+    public async Task DrawsTheSourceCodeIconInTheTextColor()
+    {
+        await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
+
+        var content = await GetPageAsync("/packages/TestData/1.2.3");
+
+        var item = Regex.Match(content, @"<li>\s*<(?<tag>\w+)\s(?<attributes>[^>]*)>(?:(?!</li>).)*>Source code</a>", RegexOptions.Singleline);
+        Assert.True(item.Success, "The source code link was not rendered.");
+        Assert.Equal("svg", item.Groups["tag"].Value);
+
+        var icon = ParseAttributes(item.Groups["attributes"].Value);
+        Assert.Equal("currentColor", icon.GetValueOrDefault("fill"));
+        Assert.Equal("true", icon.GetValueOrDefault("aria-hidden"));
+        Assert.Contains("icon", ClassesOf(icon));
+    }
+
     public void Dispose()
     {
         _client.Dispose();
