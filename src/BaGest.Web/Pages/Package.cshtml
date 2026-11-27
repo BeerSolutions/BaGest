@@ -38,28 +38,35 @@ else
             @if (Model.Deprecation != null)
             {
                 <div class="deprecation-banner alert alert-warning" role="alert">
-                    <div class="deprecation-header">
-                        <i class="ms-Icon ms-Icon--Warning" aria-hidden="true"></i>
-                        <div class="deprecation-text">
-                            <div class="deprecation-summary">@Model.Deprecation.Summary</div>
-                            @if (Model.Deprecation.Message != null)
-                            {
-                                <div class="deprecation-message">@Model.Deprecation.Message</div>
-                            }
-                        </div>
-                    </div>
-
+                    <h4 class="deprecation-header alert-heading">
+                        <i class="ms-Icon ms-Icon--Warning" aria-hidden="true"></i> @Model.Deprecation.Summary
+                    </h4>
+                    @if (Model.Deprecation.Message != null)
+                    {
+                        @Model.Deprecation.Message
+                    }
+                    
                     @if (Model.Deprecation.AlternatePackageId != null)
                     {
-                        <div class="deprecation-alt">
+                        <p class="mb-0">
                             <strong>Suggested alternative</strong>:
                             <a asp-page="Package" asp-route-id="@Model.Deprecation.AlternatePackageId">@Model.Deprecation.AlternatePackageId</a>
                             @if (Model.Deprecation.AlternatePackageVersionSpec != null)
                             {
-                                <span class="text-muted">@Model.Deprecation.AlternatePackageVersionSpec</span>
+                                <span>@Model.Deprecation.AlternatePackageVersionSpec</span>
                             }
-                        </div>
+                        </p>
                     }
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Package.ReleaseNotes))
+            {
+                <div class="release-note-banner alert alert-info" role="alert">
+                    <h4 class="release-note-header alert-heading">
+                        <i class="ms-Icon ms-Icon--Info" aria-hidden="true"></i> Release Notes
+                    </h4>
+                    @Model.ParsedReleaseNotes
                 </div>
             }
 
@@ -140,12 +147,6 @@ else
                             </div>
                         }
                     </div>);
-            }
-
-            @if (!string.IsNullOrEmpty(Model.Package.ReleaseNotes))
-            {
-                ExpandableSection("Release Notes", "ms-Icon--ReadingMode", expanded: false,
-                    @<div class="package-release-notes">@Model.ParsedReleaseNotes</div>);
             }
 
             @{ ExpandableSection("Dependencies", "ms-Icon--Packages", expanded: false,

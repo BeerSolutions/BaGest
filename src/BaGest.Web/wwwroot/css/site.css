@@ -137,7 +137,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1, h2, h3, p {
-  margin-bottom: 24px;
+  //margin-bottom: 24px;
 }
 
 h1 { margin-top: 15px; }
@@ -180,19 +180,8 @@ a:not([class]):focus {
   left: -24px;
 }
 
-/* Alerts
+/* Package Deprecation & Release Notes
 -------------------------------------------------- */
-.alert {
-  padding: 8px 8px;
-  border: 1px solid transparent;
-  border-radius: 0;
-}
-
-.alert-warning {
-  color: var(--alert-warning-text-color);
-  background-color: var(--alert-warning-bg-color);
-  border-color: var(--alert-warning-border-color);
-}
 
 .deprecation-banner {
   margin-top: 8px;
@@ -202,7 +191,13 @@ a:not([class]):focus {
   gap: 6px;
 }
 
+.deprecation-banner p {
+  margin-bottom: 0;
+}
+
 .deprecation-header {
+  margin-bottom: 0;
+  font-weight: 600;
   display: flex;
   gap: 12px;
   align-items: flex-start;
@@ -213,23 +208,36 @@ a:not([class]):focus {
   margin-top: 2px;
 }
 
-.deprecation-summary {
-  font-weight: 600;
-}
-
-.deprecation-message {
-  margin-top: 2px;
-  white-space: pre-line;
-}
-
-.deprecation-alt {
-  margin-left: 32px;
-}
-
 .deprecated-version {
   color: var(--alert-warning-text-color);
   margin-left: 4px;
 }
+
+.release-note-banner {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.release-note-banner p {
+  margin-bottom: 0;
+}
+
+.release-note-header {
+  margin-bottom: 0;
+  font-weight: 600;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.release-note-header .ms-Icon--Info {
+  font-size: 20px;
+  margin-top: 2px;
+}
+
 
 /* Navigation
 -------------------------------------------------- */
