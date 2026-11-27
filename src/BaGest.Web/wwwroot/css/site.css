@@ -471,8 +471,14 @@ a:not([class]):focus {
   white-space: pre-wrap;
 }
 
-.package-details-info {
-  margin-top: -25px;
+/* Next to the package details, pull the sidebar up so its first heading
+   lines up with the package title. Once the columns stack, the sidebar
+   follows the details, and pulling it up would lay it over the end of the
+   version list and block the "Show more" button. */
+@media (min-width: 576px) {
+  .package-details-info {
+    margin-top: -25px;
+  }
 }
 
 .package-details-info .ms-Icon-ul li {
