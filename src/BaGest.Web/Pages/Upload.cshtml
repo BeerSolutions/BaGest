@@ -16,7 +16,7 @@
     <div>You can push packages using the service index <code>@serviceIndexUrl</code>.</div>
 
     <div class="tabbed-info mt-4" x-data="{ tabs: tabs, active: tabs[0] }">
-        <ul class="nav nav-tabs mb-3">
+        <ul class="nav nav-tabs">
             <template x-for="tab in tabs" :key="tab.name">
                 <li class="nav-item">
                     <a class="nav-link" href="#" x-bind:class="{ 'active': active.name === tab.name }" x-text="tab.name" @@click="active = tab"></a>
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div class="icon-text alert alert-warning mt-3">
+        <div class="icon-text alert alert-warning">
             For more information, please refer to
             <a target="_blank"
                rel="noopener noreferrer"
