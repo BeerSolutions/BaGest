@@ -24,6 +24,11 @@
     {
         <input type="hidden" name="prerelease" value="False" />
     }
+
+    @if (Model.SortOrder != SearchSortOrder.Relevance)
+    {
+        <input type="hidden" name="sortBy" value="@Model.SortOrder.ToQueryValue()" />
+    }
 }
 
 <div class="search-options d-flex flex-wrap align-items-center mb-4 gap-3">
@@ -64,6 +69,21 @@
         <label class="form-check-label" for="prerelease">
             Include prerelease
         </label>
+    </div>
+
+    <div class="d-flex align-items-center ms-md-auto">
+        <label class="me-2 mb-0 fw-bold" for="sort-by">Sort by:</label>
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="sort-by" data-bs-toggle="dropdown" aria-expanded="false">
+                @SortOrders.GetValueOrDefault(Model.SortOrder, Model.SortOrder.ToQueryValue())
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sort-by">
+                @foreach (var sortOrder in SortOrders)
+                {
+                    <li><a class="dropdown-item@(sortOrder.Key == Model.SortOrder ? " active" : "")" href="@SearchLink(sortOrder: sortOrder.Key, page: 1)">@sortOrder.Value</a></li>
+                }
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -148,6 +168,14 @@ else
         { "dotnettemplate", ".NET template" },
     };
 
+    // The orders nuget.org offers on its search page. Other sortBy values still work in links.
+    private IReadOnlyDictionary<SearchSortOrder, string> SortOrders { get; } = new Dictionary<SearchSortOrder, string>()
+    {
+        { SearchSortOrder.Relevance, "Relevance" },
+        { SearchSortOrder.TotalDownloadsDescending, "Downloads" },
+        { SearchSortOrder.CreatedDescending, "Recently updated" },
+    };
+
     private IReadOnlyDictionary<string, string> TargetFrameworks { get; } = new Dictionary<string, string>()
     {
         { "any", "Any" },
@@ -210,11 +238,13 @@ else
         string packageType = null,
         string framework = null,
         bool? prerelease = null,
+        SearchSortOrder? sortOrder = null,
         int? page = null)
     {
         packageType = packageType ?? Model.PackageType;
         framework = framework ?? Model.Framework;
         prerelease = prerelease ?? Model.Prerelease;
+        sortOrder = sortOrder ?? Model.SortOrder;
         page = page ?? Model.PageIndex;
 
         if (packageType == "any") packageType = null;
@@ -229,6 +259,7 @@ else
             packageType,
             framework,
             prerelease,
+            sortBy = sortOrder == SearchSortOrder.Relevance ? null : sortOrder.Value.ToQueryValue(),
         });
     }
 }
