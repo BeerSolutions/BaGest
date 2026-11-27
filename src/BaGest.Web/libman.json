@@ -14,10 +14,12 @@
       ]
     },
     {
-      "library": "office-ui-fabric-core@11.1.0",
-      "destination": "wwwroot/lib/office-ui-fabric-core/",
+      "library": "bootstrap-icons@1.13.2",
+      "destination": "wwwroot/lib/bootstrap-icons/",
       "files": [
-        "dist/css/fabric.min.css",
+        "font/bootstrap-icons.min.css",
+        "font/fonts/bootstrap-icons.woff",
+        "font/fonts/bootstrap-icons.woff2",
         "LICENSE"
       ]
     },

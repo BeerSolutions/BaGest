@@ -171,15 +171,15 @@ a:not([class]):focus {
   height: auto;
 }
 
-.ms-Icon-ul {
+.icon-list {
   margin-left: 24px;
 }
 
-.ms-Icon-ul li {
+.icon-list li {
   position: relative;
 }
 
-.ms-Icon-ul li i.ms-Icon {
+.icon-list li i.bi {
   position: absolute;
   left: -24px;
 }
@@ -212,7 +212,7 @@ a:not([class]):focus {
   align-items: flex-start;
 }
 
-.deprecation-header .ms-Icon--Warning {
+.deprecation-header .bi {
   font-size: 20px;
   margin-top: 2px;
 }
@@ -348,7 +348,7 @@ a:not([class]):focus {
   border-left: 1px solid var(--package-used-by-border-color);
 }
 
-.search-result .ms-Icon {
+.search-result .bi {
   position: relative;
   top: 2px;
   margin-right: 2px;
@@ -481,7 +481,7 @@ a:not([class]):focus {
   }
 }
 
-.package-details-info .ms-Icon-ul li {
+.package-details-info .icon-list li {
   margin-bottom: 15px;
 }
 
@@ -506,7 +506,7 @@ a:not([class]):focus {
   text-decoration: none;
 }
 
-.display-package .expandable-section h2 .ms-Icon {
+.display-package .expandable-section h2 .bi {
   font-size: 0.6em;
   position: relative;
   top: -2px;

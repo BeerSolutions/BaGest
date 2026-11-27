@@ -153,6 +153,32 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Equal(new[] { "icon-text", "alert", "alert-warning" }, ClassesOf(note));
     }
 
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/upload")]
+    [InlineData("/packages/TestData/1.2.3")]
+    public async Task DrawsTheIconsWithTheBundledIconFont(string path)
+    {
+        await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
+
+        var content = await GetPageAsync(path);
+
+        Assert.Contains("/_content/BaGest.Web/lib/bootstrap-icons/font/bootstrap-icons.min.css", content);
+        Assert.DoesNotContain("ms-Icon", content);
+
+        // A glyph class only draws an icon together with the base class that selects the font.
+        var icons = FindElements(content, "i").Concat(FindElements(content, "span"))
+            .Where(a => ClassesOf(a).Any(c => c.StartsWith("bi-", StringComparison.Ordinal)))
+            .ToList();
+        Assert.NotEmpty(icons);
+        Assert.All(icons, icon => Assert.Contains("bi", ClassesOf(icon)));
+
+        // Every glyph named on the page, including the ones Alpine toggles, exists in the icon font.
+        var stylesheet = File.ReadAllText(FindIconStylesheet());
+        var glyphs = Regex.Matches(content, @"(?<![\w-])bi-[a-z0-9-]+").Select(m => m.Value).Distinct().ToList();
+        Assert.All(glyphs, glyph => Assert.Contains($".{glyph}::before", stylesheet));
+    }
+
     [Fact]
     public async Task DrawsTheSourceCodeIconInTheTextColor()
     {
@@ -193,6 +219,20 @@ public class LayoutIntegrationTests : IDisposable
         using var response = await _client.GetAsync(path);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
+    }
+
+    private static string FindIconStylesheet()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
+        {
+            var candidate = Path.Combine(directory.FullName, "src", "BaGest.Web", "wwwroot", "lib", "bootstrap-icons", "font", "bootstrap-icons.min.css");
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        throw new InvalidOperationException("Could not find the Bootstrap Icons stylesheet above the test output directory.");
     }
 
     private static IEnumerable<Dictionary<string, string>> FindElements(string content, string tagName) =>
