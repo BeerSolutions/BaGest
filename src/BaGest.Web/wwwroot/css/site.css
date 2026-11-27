@@ -14,6 +14,8 @@
   --search-button-border-color: #bf6f00;
   --search-button-hover-bg-color: #a56000;
   --search-button-hover-border-color: #814b00;
+  /* Borders of the search filter controls */
+  --control-border-color: #002b4d;
   /* Alerts */
   --alert-warning-bg-color: #fff4ce;
   --alert-warning-border-color: #fff4ce;
@@ -63,6 +65,8 @@
     --search-button-border-color: #e68900;
     --search-button-hover-bg-color: #cc7a00;
     --search-button-hover-border-color: #b36b00;
+    /* Borders of the search filter controls (at least 3:1 against the page) */
+    --control-border-color: #777;
     /* Alerts */
     --alert-warning-bg-color: #333;
     --alert-warning-border-color: #333;
@@ -618,13 +622,13 @@ code {
    the hover, focus and open (.show) states all stay readable. */
 .search-options .btn-outline-secondary {
   --bs-btn-color: var(--text-color);
-  --bs-btn-border-color: var(--navbar-border-color);
+  --bs-btn-border-color: var(--control-border-color);
   --bs-btn-hover-color: var(--text-color);
   --bs-btn-hover-bg: var(--tabbed-info-bg-color);
-  --bs-btn-hover-border-color: var(--navbar-border-color);
+  --bs-btn-hover-border-color: var(--control-border-color);
   --bs-btn-active-color: var(--text-color);
   --bs-btn-active-bg: var(--tabbed-info-bg-color);
-  --bs-btn-active-border-color: var(--navbar-border-color);
+  --bs-btn-active-border-color: var(--control-border-color);
 }
 
 /* Compact filter menus: the framework list is long and would otherwise
@@ -639,7 +643,7 @@ code {
 @media (prefers-color-scheme: dark) {
   .search-options .form-check-input {
     background-color: var(--body-bg-color);
-    border-color: var(--navbar-border-color);
+    border-color: var(--control-border-color);
   }
   
   .search-options .form-check-input:checked {
