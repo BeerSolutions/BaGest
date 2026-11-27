@@ -403,7 +403,7 @@ a:not([class]):focus {
   line-height: 1.5;
   color: var(--tabbed-info-script-text-color);
   background-color: var(--tabbed-info-script-bg-color);
-  border: 1px solid #002440;
+  border: 1px solid var(--tabbed-info-script-bg-color);
   border-right: none;
   overflow-x: auto;
 }
