@@ -627,6 +627,14 @@ code {
   --bs-btn-active-border-color: var(--navbar-border-color);
 }
 
+/* Compact filter menus: the framework list is long and would otherwise
+   make the page about twice as tall when opened. */
+.search-options .dropdown-menu {
+  --bs-dropdown-font-size: 0.875rem;
+  --bs-dropdown-item-padding-y: 0.15rem;
+  --bs-dropdown-header-padding-y: 0.25rem;
+}
+
 /* Adjust checkbox in dark mode (Bootstrap 5 otherwise sets it to white) */
 @media (prefers-color-scheme: dark) {
   .search-options .form-check-input {
