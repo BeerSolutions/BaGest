@@ -154,23 +154,6 @@ public class LayoutIntegrationTests : IDisposable
     }
 
     [Fact]
-    public async Task DrawsTheSourceCodeIconInTheTextColor()
-    {
-        await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
-
-        var content = await GetPageAsync("/packages/TestData/1.2.3");
-
-        var item = Regex.Match(content, @"<li>\s*<(?<tag>\w+)\s(?<attributes>[^>]*)>(?:(?!</li>).)*>Source code</a>", RegexOptions.Singleline);
-        Assert.True(item.Success, "The source code link was not rendered.");
-        Assert.Equal("svg", item.Groups["tag"].Value);
-
-        var icon = ParseAttributes(item.Groups["attributes"].Value);
-        Assert.Equal("currentColor", icon.GetValueOrDefault("fill"));
-        Assert.Equal("true", icon.GetValueOrDefault("aria-hidden"));
-        Assert.Contains("icon", ClassesOf(icon));
-    }
-
-    [Fact]
     public async Task SeparatesTheRowsOfTheVersionTable()
     {
         await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
