@@ -251,6 +251,14 @@ a:not([class]):focus {
   padding: 10px 15px;
 }
 
+/* In the expanded menu, pull the links left by their padding so the first
+   label lines up with the page content below. */
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-nav {
+    margin-left: calc(-1 * var(--bs-navbar-nav-link-padding-x));
+  }
+}
+
 .navbar-nav .nav-link:hover,
 .navbar-nav .nav-link:focus {
   color: var(--navbar-active-text-color) !important;
