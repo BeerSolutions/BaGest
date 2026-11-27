@@ -600,7 +600,7 @@ code {
 .card {
   background-color: var(--body-bg-color);
   color: var(--text-color);
-  border: 1px solid var(--navbar-border-color);
+  border: 1px solid var(--package-used-by-border-color);
 }
 
 .search-result .package-title {
