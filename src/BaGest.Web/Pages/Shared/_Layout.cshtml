@@ -23,10 +23,8 @@
     </head>
     <body>
         <header>
-            <!-- Dunkler Hintergrund, Flexbox für die Anordnung -->
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container flex-wrap">
-                    <!-- Links: Navigation -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a nav-link asp-area="" asp-page="/Index" class="nav-link"><span>Packages</span></a>
@@ -64,11 +62,6 @@
                     </form>
                 </div>
             </nav>
-            
-            @if (IsSectionDefined("SearchForm"))
-            {
-                <div class="container mt-3"></div>
-            }
         </header>
 
         <main role="main" class="container main-container">
