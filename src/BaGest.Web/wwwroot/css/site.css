@@ -234,6 +234,7 @@ a:not([class]):focus {
 /* Navigation
 -------------------------------------------------- */
 .navbar {
+  margin-bottom: 20px;
   border-radius: 0;
   /* IMPORTANT: Overrides bg-dark from Layout.cshtml so the variable takes effect */
   background-color: var(--navbar-bg-color) !important; 
