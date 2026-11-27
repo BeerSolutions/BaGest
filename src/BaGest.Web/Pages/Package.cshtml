@@ -39,7 +39,7 @@ else
             {
                 <div class="deprecation-banner alert alert-warning" role="alert">
                     <div class="deprecation-header">
-                        <i class="ms-Icon bi bi-exclamation-triangle" aria-hidden="true"></i>
+                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                         <div class="deprecation-text">
                             <div class="deprecation-summary">@Model.Deprecation.Summary</div>
                             @if (Model.Deprecation.Message != null)
@@ -82,14 +82,14 @@ else
                                 data-bs-placement="bottom"
                                 data-bs-content="Copied"
                                 @@click="window.baget.copyTextToClipboard(active.content.join('\n'), $el)">
-                            <i class="ms-Icon ms-Icon--Copy"></i>
+                            <i class="bi bi-copy"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
             @{
-                ExpandableSection("Readme", "bi bi-book", expanded: false,
+                ExpandableSection("Readme", "bi-book", expanded: false,
                     @<div>
                         @if (Model.Readme == null)
                         {
@@ -104,7 +104,7 @@ else
 
             @if (!Model.IsDotnetTemplate && !Model.IsDotnetTool)
             {
-                ExpandableSection("Used By", "bi bi-card-checklist", expanded: false,
+                ExpandableSection("Used By", "bi-card-checklist", expanded: false,
                     @<div class="package-used-by">
                         @if (!Model.UsedBy.Any())
                         {
@@ -130,7 +130,7 @@ else
                                                     <div class="text-muted small">@package.Description</div>
                                                 </td>
                                                 <td>
-                                                    <i class="ms-Icon ms-Icon--Download" aria-hidden="true"></i>
+                                                    <i class="bi bi-download" aria-hidden="true"></i>
                                                     <span>@package.TotalDownloads.ToString("N0")</span>
                                                 </td>
                                             </tr>
@@ -144,11 +144,11 @@ else
 
             @if (!string.IsNullOrEmpty(Model.Package.ReleaseNotes))
             {
-                ExpandableSection("Release Notes", "ms-Icon--ReadingMode", expanded: false,
+                ExpandableSection("Release Notes", "bi-journal-text", expanded: false,
                     @<div class="package-release-notes">@Model.ParsedReleaseNotes</div>);
             }
 
-            @{ ExpandableSection("Dependencies", "bi bi-boxes", expanded: false,
+            @{ ExpandableSection("Dependencies", "bi-boxes", expanded: false,
                 @<div class="dependency-groups">
                     @if (!Model.DependencyGroups.Any())
                     {
@@ -188,7 +188,7 @@ else
                 </div>);
             }
 
-            @{ ExpandableSection("Versions", "bi bi-stopwatch", expanded: true,
+            @{ ExpandableSection("Versions", "bi-stopwatch", expanded: true,
                 @<div class="version-list" x-data="{ showAll: false }">
                     <table class="table">
                         <thead>
@@ -209,7 +209,7 @@ else
                                         <a asp-page="Package" asp-route-version="@version.Version">@version.Version.ToNormalizedString()</a>
                                         @if (version.IsDeprecated)
                                         {
-                                            <i class="ms-Icon bi bi-exclamation-triangle deprecated-version" title="Deprecated" aria-label="Deprecated"></i>
+                                            <i class="bi bi-exclamation-triangle deprecated-version" title="Deprecated" aria-label="Deprecated"></i>
                                         }
                                     </td>
                                     <td>@version.Downloads.ToString("N0")</td>
@@ -222,7 +222,7 @@ else
                     @if (Model.Versions.Count > DefaultVisibleVersions)
                     {
                         <button type="button" class="link-button" @@click="showAll = !showAll">
-                            <i class="ms-Icon" x-bind:class="{ 'ms-Icon--CalculatorAddition': !showAll, 'ms-Icon--CalculatorSubtract': showAll }"></i>
+                            <i class="bi" x-bind:class="{ 'bi-plus-lg': !showAll, 'bi-dash-lg': showAll }" aria-hidden="true"></i>
                             <span x-text="showAll ? 'Show less' : 'Show more'"></span>
                         </button>
                     }
@@ -235,16 +235,16 @@ else
             <div>
                 <h2>Info</h2>
 
-                <ul class="list-unstyled ms-Icon-ul">
+                <ul class="list-unstyled icon-list">
                     <li>
-                        <i class="ms-Icon bi bi-clock-history" aria-hidden="true"></i>
+                        <i class="bi bi-clock-history" aria-hidden="true"></i>
                         Last updated @Model.LastUpdated.Humanize()
                     </li>
 
                     @if (Model.Package.ProjectUrlString != null)
                     {
                         <li>
-                            <i class="ms-Icon bi bi-globe"></i>
+                            <i class="bi bi-globe"></i>
                             <a href="@Model.Package.ProjectUrlString">Project URL</a>
                         </li>
                     }
@@ -262,13 +262,13 @@ else
                     @if (Model.LicenseUrl != null)
                     {
                         <li>
-                            <i class="ms-Icon bi bi-file-medical-fill"></i>
+                            <i class="bi bi-award"></i>
                             <a href="@Model.LicenseUrl">License</a>
                         </li>
                     }
 
                     <li>
-                        <i class="ms-Icon bi bi-cloud-download"></i>
+                        <i class="bi bi-cloud-download"></i>
                         <a href="@Model.PackageDownloadUrl">Download package</a>
                     </li>
                 </ul>
@@ -277,14 +277,14 @@ else
             <div>
                 <h2>Statistics</h2>
 
-                <ul class="list-unstyled ms-Icon-ul">
+                <ul class="list-unstyled icon-list">
                     <li>
-                        <i class="ms-Icon bi bi-file-arrow-down"></i>
+                        <i class="bi bi-download"></i>
                         @Model.TotalDownloads.ToString("N0") total downloads
                     </li>
 
                     <li>
-                        <i class="ms-Icon bi bi-file-earmark-arrow-down"></i>
+                        <i class="bi bi-file-earmark-arrow-down"></i>
                         @Model.Package.Downloads.ToString("N0") downloads of current version
                     </li>
                 </ul>
@@ -378,13 +378,11 @@ else
         <div class="expandable-section" x-data="{ expanded: @Json.Serialize(expanded) }">
             <h2>
                 <button type="button" class="link-button" @@click="expanded = !expanded">
-                    <i x-bind:class="{ 'bi bi-chevron-down': expanded, 'bi bi-chevron-right': !expanded }"
-                    class="ms-Icon">
-                    </i>
+                    <i class="bi" x-bind:class="{ 'bi-chevron-down': expanded, 'bi-chevron-right': !expanded }" aria-hidden="true"></i>
                     <span>
                         @if (!string.IsNullOrWhiteSpace(icon))
                         {
-                            <i class="ms-Icon @icon" aria-hidden="true"></i>
+                            <i class="bi @icon" aria-hidden="true"></i>
                         }
                         @title
                     </span>
