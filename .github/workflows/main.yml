@@ -6,11 +6,9 @@ on:
     paths-ignore:
       - 'docs/**'
       - '*.md'
-  # Any base branch, so stacked pull requests are built as well.
+  # Any base branch, so stacked pull requests are built as well. No path filter:
+  # the required checks must report on every pull request, including docs-only ones.
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - '*.md'
   workflow_dispatch:
 
 concurrency:
