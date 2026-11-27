@@ -29,6 +29,11 @@
   --copy-button-border-color: #bf6f00;
   --copy-button-hover-bg-color: #a56000;
   --copy-button-hover-border-color: #814b00;
+  /* Links (Bootstrap reads the -rgb variants for plain links) */
+  --bs-link-color: #337ab7;
+  --bs-link-color-rgb: 51, 122, 183;
+  --bs-link-hover-color: #23527c;
+  --bs-link-hover-color-rgb: 35, 82, 124;
   /* Package Page */
   --link-button-color: #337ab7;
   --package-details-tag-bg-color: #eff9ff;
@@ -83,6 +88,12 @@
     --code-bg-color: #2d2d2d;
     --code-text-color: #e06c75;
   }
+
+  /* Bootstrap muted text (.text-muted) on the dark page backgrounds. Scoped to
+     the page content: the header search box keeps a white background. */
+  .main-container {
+    --bs-secondary-color: #b5b5b5;
+  }
 }
 
 /* Layout
@@ -136,6 +147,17 @@ h4 {
   margin-top: 11px;
   margin-bottom: 11px;
   font-size: 20px;
+}
+
+/* Plain links are underlined only on hover or focus. Links styled by a
+   component class (nav links, dropdown items, buttons) keep their own look. */
+a:not([class]) {
+  text-decoration: none;
+}
+
+a:not([class]):hover,
+a:not([class]):focus {
+  text-decoration: underline;
 }
 
 /* BS5 Support for legacy class */
@@ -232,6 +254,12 @@ h4 {
 .navbar-nav .nav-link.active {
   color: var(--navbar-active-text-color) !important;
   background-color: transparent;
+}
+
+/* Underline only the label, so the line does not span the whole row of the
+   expanded menu on small screens. */
+.navbar-nav .nav-link.active span {
+  padding: 5px 0;
   border-bottom: 1px solid var(--navbar-active-text-color);
 }
 
@@ -534,7 +562,7 @@ code {
   --bs-dropdown-border-radius: 0;
   
   --bs-dropdown-link-color: var(--text-color);
-  --bs-dropdown-link-hover-color: var(--navbar-active-text-color);
+  --bs-dropdown-link-hover-color: var(--text-color);
   --bs-dropdown-link-hover-bg: var(--tabbed-info-bg-color);
   --bs-dropdown-link-active-color: #fff;
   --bs-dropdown-link-active-bg: var(--search-button-bg-color);
@@ -554,7 +582,7 @@ code {
   --bs-table-bg: transparent;
   --bs-table-color: var(--text-color);
   --bs-table-hover-bg: var(--tabbed-info-bg-color);
-  --bs-table-hover-color: var(--navbar-active-text-color);
+  --bs-table-hover-color: var(--text-color);
   --bs-table-border-color: var(--navbar-border-color);
 }
 
@@ -599,16 +627,17 @@ code {
 
 /* Search Filters Form
 -------------------------------------------------- */
-.search-options .form-control,
+/* Theme the filter buttons through the Bootstrap button variables so that
+   the hover, focus and open (.show) states all stay readable. */
 .search-options .btn-outline-secondary {
-  /* So the buttons aren't too dark in dark mode or too bright in light mode */
-  color: var(--text-color);
-  border-color: var(--navbar-border-color);
-}
-
-.search-options .btn-outline-secondary:hover {
-  background-color: var(--tabbed-info-bg-color);
-  color: var(--navbar-active-text-color);
+  --bs-btn-color: var(--text-color);
+  --bs-btn-border-color: var(--navbar-border-color);
+  --bs-btn-hover-color: var(--text-color);
+  --bs-btn-hover-bg: var(--tabbed-info-bg-color);
+  --bs-btn-hover-border-color: var(--navbar-border-color);
+  --bs-btn-active-color: var(--text-color);
+  --bs-btn-active-bg: var(--tabbed-info-bg-color);
+  --bs-btn-active-border-color: var(--navbar-border-color);
 }
 
 /* Adjust checkbox in dark mode (Bootstrap 5 otherwise sets it to white) */
