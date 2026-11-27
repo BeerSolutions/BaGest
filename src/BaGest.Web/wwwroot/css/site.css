@@ -83,6 +83,12 @@
     --code-bg-color: #2d2d2d;
     --code-text-color: #e06c75;
   }
+
+  /* Bootstrap muted text (.text-muted) on the dark page backgrounds. Scoped to
+     the page content: the header search box keeps a white background. */
+  .main-container {
+    --bs-secondary-color: #b5b5b5;
+  }
 }
 
 /* Layout
