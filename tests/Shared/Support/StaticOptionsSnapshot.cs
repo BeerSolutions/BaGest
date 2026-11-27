@@ -1,7 +1,7 @@
 using BaGest.Core;
 using Microsoft.Extensions.Options;
 
-namespace BaGest.Database.PostgreSql.Tests.Support;
+namespace BaGest.Tests.Shared.Support;
 
 internal sealed class StaticOptionsSnapshot(BaGestOptions value) : IOptionsSnapshot<BaGestOptions>
 {

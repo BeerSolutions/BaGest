@@ -116,9 +116,11 @@ public class DatabaseSearchService : ISearchService
                 TotalDownloads = group.Sum(p => p.Downloads),
                 LastPublished = group.Max(p => p.Published),
 
-                // As on nuget.org: the newest version's title, or the ID if it has none, ignoring case.
+                // Like nuget.org's sortable title: the title of the most recently published version,
+                // or the ID if it has none, ignoring case.
                 SortableTitle = group
                     .OrderByDescending(p => p.Published)
+                    .ThenByDescending(p => p.Key)
                     .Select(p => (p.Title == null || p.Title.Trim() == "" ? p.Id : p.Title.Trim()).ToLower())
                     .FirstOrDefault(),
             });
@@ -133,7 +135,8 @@ public class DatabaseSearchService : ISearchService
             SearchSortOrder.TitleDescending => registrations.OrderByDescending(r => r.SortableTitle),
             SearchSortOrder.TotalDownloadsAscending => registrations.OrderBy(r => r.TotalDownloads),
             SearchSortOrder.TotalDownloadsDescending => registrations.OrderByDescending(r => r.TotalDownloads),
-            _ => throw new ArgumentOutOfRangeException(nameof(request), request.SortOrder, "Unknown search sort order."),
+            _ => throw new ArgumentOutOfRangeException(
+                $"{nameof(request)}.{nameof(request.SortOrder)}", request.SortOrder, "Unknown search sort order."),
         };
 
         // The ID breaks ties, so that pages do not overlap.
@@ -148,9 +151,13 @@ public class DatabaseSearchService : ISearchService
             .Where(p => packageIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
 
-        var positions = packageIds
-            .Select((id, position) => (id, position))
-            .ToDictionary(entry => entry.id, entry => entry.position, StringComparer.OrdinalIgnoreCase);
+        // With a case-sensitive collation, the database can return IDs that differ only in case.
+        // They are one package here, as in the rest of BaGest, so the first position wins.
+        var positions = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var packageId in packageIds)
+        {
+            positions.TryAdd(packageId, positions.Count);
+        }
 
         return results
             .GroupBy(p => p.Id, StringComparer.OrdinalIgnoreCase)

@@ -141,22 +141,30 @@ public class ApiIntegrationTests : IDisposable
     }
 
     [Theory]
-    [InlineData("v3/search", new[] { "Another.Package", "TestData" })]
-    [InlineData("v3/search?sortBy=relevance", new[] { "Another.Package", "TestData" })]
-    [InlineData("v3/search?sortBy=unknown", new[] { "Another.Package", "TestData" })]
-    [InlineData("v3/search?sortBy=title-desc", new[] { "TestData", "Another.Package" })]
-    [InlineData("v3/search?sortBy=TITLE-DESC", new[] { "TestData", "Another.Package" })]
-    public async Task SearchSortsBySortByParameter(string uri, string[] expected)
+    [InlineData("title-desc")]
+    [InlineData("TITLE-DESC")]
+    public async Task SearchSortsBySortByParameter(string sortBy)
     {
-        await _app.AddPackageAsync(_packageStream);
-        await _app.AddPackageAsync(CreatePackage(
-            "<authors>Test author</authors><description>Another description</description>",
-            id: "Another.Package"));
+        await AddTwoPackagesAsync();
 
-        using var response = await _client.GetAsync(uri);
+        using var response = await _client.GetAsync($"v3/search?sortBy={sortBy}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(expected, await GetPackageIdsAsync(response));
+        Assert.Equal(["TestData", "Another.Package"], await GetPackageIdsAsync(response));
+    }
+
+    [Theory]
+    [InlineData("relevance")]
+    [InlineData("unknown")]
+    public async Task SearchWithDefaultSortByMatchesSearchWithout(string sortBy)
+    {
+        await AddTwoPackagesAsync();
+
+        using var withoutSortBy = await _client.GetAsync("v3/search");
+        using var withSortBy = await _client.GetAsync($"v3/search?sortBy={sortBy}");
+
+        Assert.Equal(HttpStatusCode.OK, withSortBy.StatusCode);
+        Assert.Equal(await withoutSortBy.Content.ReadAsStringAsync(), await withSortBy.Content.ReadAsStringAsync());
     }
 
     [Fact]
@@ -537,6 +545,14 @@ public class ApiIntegrationTests : IDisposable
     {
         using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync());
         return json.RootElement.GetProperty("totalHits").GetInt32();
+    }
+
+    private async Task AddTwoPackagesAsync()
+    {
+        await _app.AddPackageAsync(_packageStream);
+        await _app.AddPackageAsync(CreatePackage(
+            "<authors>Test author</authors><description>Another description</description>",
+            id: "Another.Package"));
     }
 
     private static async Task<string[]> GetPackageIdsAsync(HttpResponseMessage response)

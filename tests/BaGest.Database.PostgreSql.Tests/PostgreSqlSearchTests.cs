@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using BaGest.Database.PostgreSql.Tests.Support;
+using BaGest.Tests.Shared.Support;
 using BaGest.Tests.Shared.Search;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;

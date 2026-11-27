@@ -7,8 +7,8 @@ namespace BaGest.Core;
 public enum SearchSortOrder
 {
     /// <summary>
-    /// The default order, used when no other order is requested. BaGest does not score results,
-    /// so packages are ordered by ID.
+    /// The default order, used when no other order is requested. BaGest does not score results:
+    /// the page of packages is chosen in package ID order.
     /// </summary>
     Relevance,
 
@@ -24,12 +24,14 @@ public enum SearchSortOrder
     Published,
 
     /// <summary>
-    /// By title in ascending case-insensitive order. The ID is used for packages without a title.
+    /// By the title of the most recently published version, in ascending case-insensitive order.
+    /// The ID is used for packages without a title.
     /// </summary>
     TitleAscending,
 
     /// <summary>
-    /// By title in descending case-insensitive order. The ID is used for packages without a title.
+    /// By the title of the most recently published version, in descending case-insensitive order.
+    /// The ID is used for packages without a title.
     /// </summary>
     TitleDescending,
 
@@ -44,12 +46,12 @@ public enum SearchSortOrder
     CreatedDescending,
 
     /// <summary>
-    /// Fewest downloads across all versions first.
+    /// Fewest downloads first, counting the versions the search returns.
     /// </summary>
     TotalDownloadsAscending,
 
     /// <summary>
-    /// Most downloads across all versions first.
+    /// Most downloads first, counting the versions the search returns.
     /// </summary>
     TotalDownloadsDescending,
 }

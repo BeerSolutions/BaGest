@@ -32,19 +32,19 @@ gallery search, the service behind the "Sort by" menu on [nuget.org](https://www
 
 | `sortBy` | Order |
 | --- | --- |
-| `relevance` | The default order, by package ID. BaGest does not score results. |
-| `totalDownloads-desc` | Most downloads (across all versions) first. |
+| `relevance` | The default order. BaGest does not score results: pages are chosen in package ID order. |
+| `totalDownloads-desc` | Most downloads first, counting the versions the search returns, as in its `totalDownloads`. |
 | `totalDownloads-asc` | Fewest downloads first. |
 | `published` | Most recently published first, by the newest version of each package. |
 | `created-desc` | The same as `published`. |
 | `created-asc` | Least recently published first, by the newest version of each package. |
 | `lastEdited` | The same as `published`: BaGest does not record metadata edits. |
-| `title-asc` | By title, ignoring case. The package ID is used for packages without a title. |
+| `title-asc` | By the title of the most recently published version, ignoring case. The package ID is used for packages without a title. |
 | `title-desc` | By title in reverse, ignoring case. |
 
 As on nuget.org, values are not case-sensitive, and a missing or unknown value means `relevance`, so a request
-that works on nuget.org also works on BaGest. Packages that are equal under the chosen order are ordered by ID,
-so `skip` and `take` page through the results without gaps or repeats.
+that works on nuget.org also works on BaGest. With the other values, packages that are equal under the chosen
+order are ordered by ID, so `skip` and `take` page through the results without gaps or repeats.
 
 <Tabs>
   <TabItem value="curl" label="curl" default>

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using BaGest.Database.Sqlite.Tests.Support;
+using BaGest.Tests.Shared.Support;
 using BaGest.Tests.Shared.Search;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
