@@ -160,14 +160,17 @@ public class DatabaseSearchService : ISearchService
 
         foreach (var keyword in keywords)
         {
-            var term = keyword;
+            // Lowercase both sides: not every provider compares these columns case-insensitively
+            // (SQLite's instr() ignores the column collation, PostgreSQL stores them as plain text).
+            // The pattern has a leading wildcard, so no index could be used anyway.
+            var term = keyword.ToLowerInvariant();
 
             // Search across multiple fields for the main search endpoint
-            query = query.Where(p => 
-                p.Id.Contains(term) || 
-                (p.Description != null && p.Description.Contains(term)) || 
-                (p.Summary != null && p.Summary.Contains(term)) ||
-                (p.Title != null && p.Title.Contains(term))
+            query = query.Where(p =>
+                p.Id.ToLower().Contains(term) ||
+                (p.Description != null && p.Description.ToLower().Contains(term)) ||
+                (p.Summary != null && p.Summary.ToLower().Contains(term)) ||
+                (p.Title != null && p.Title.ToLower().Contains(term))
             );
         }
 
@@ -190,10 +193,10 @@ public class DatabaseSearchService : ISearchService
 
         foreach (var keyword in keywords)
         {
-            var term = keyword;
+            var term = keyword.ToLowerInvariant();
 
             // Autocomplete should ONLY match the package ID
-            query = query.Where(p => p.Id.Contains(term));
+            query = query.Where(p => p.Id.ToLower().Contains(term));
         }
 
         return query;
