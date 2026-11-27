@@ -140,6 +140,25 @@ public class ApiIntegrationTests : IDisposable
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("v3/search", new[] { "Another.Package", "TestData" })]
+    [InlineData("v3/search?sortBy=relevance", new[] { "Another.Package", "TestData" })]
+    [InlineData("v3/search?sortBy=unknown", new[] { "Another.Package", "TestData" })]
+    [InlineData("v3/search?sortBy=title-desc", new[] { "TestData", "Another.Package" })]
+    [InlineData("v3/search?sortBy=TITLE-DESC", new[] { "TestData", "Another.Package" })]
+    public async Task SearchSortsBySortByParameter(string uri, string[] expected)
+    {
+        await _app.AddPackageAsync(_packageStream);
+        await _app.AddPackageAsync(CreatePackage(
+            "<authors>Test author</authors><description>Another description</description>",
+            id: "Another.Package"));
+
+        using var response = await _client.GetAsync(uri);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(expected, await GetPackageIdsAsync(response));
+    }
+
     [Fact]
     public async Task AutocompleteReturnsOk()
     {
@@ -520,18 +539,28 @@ public class ApiIntegrationTests : IDisposable
         return json.RootElement.GetProperty("totalHits").GetInt32();
     }
 
-    private static MemoryStream CreatePackage(string metadata)
+    private static async Task<string[]> GetPackageIdsAsync(HttpResponseMessage response)
+    {
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync());
+        return json.RootElement
+            .GetProperty("data")
+            .EnumerateArray()
+            .Select(result => result.GetProperty("id").GetString())
+            .ToArray();
+    }
+
+    private static MemoryStream CreatePackage(string metadata, string id = "Invalid.Manifest")
     {
         var nuspec =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
             + "<package xmlns=\"http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd\">"
-            + "<metadata><id>Invalid.Manifest</id><version>1.0.0</version>" + metadata + "</metadata>"
+            + $"<metadata><id>{id}</id><version>1.0.0</version>" + metadata + "</metadata>"
             + "</package>";
 
         var stream = new MemoryStream();
         using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            using var writer = new StreamWriter(archive.CreateEntry("Invalid.Manifest.nuspec").Open());
+            using var writer = new StreamWriter(archive.CreateEntry($"{id}.nuspec").Open());
             writer.Write(nuspec);
         }
 

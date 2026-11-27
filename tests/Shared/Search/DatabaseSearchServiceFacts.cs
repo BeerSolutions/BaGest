@@ -145,7 +145,67 @@ public abstract class DatabaseSearchServiceFacts<TContext> : IAsyncLifetime
         Assert.Empty(await AutocompleteAsync("Acme%2EWidgets"));
     }
 
-    private async Task<IReadOnlyList<string>> SearchAsync(string query)
+    [SkippableTheory]
+    [InlineData(SearchSortOrder.LastEdited, new[] { "beta.tools", "Acme.Widgets", "Contoso.Logging", "Fabrikam.Reusable" })]
+    [InlineData(SearchSortOrder.Published, new[] { "beta.tools", "Acme.Widgets", "Contoso.Logging", "Fabrikam.Reusable" })]
+    [InlineData(SearchSortOrder.CreatedDescending, new[] { "beta.tools", "Acme.Widgets", "Contoso.Logging", "Fabrikam.Reusable" })]
+    [InlineData(SearchSortOrder.CreatedAscending, new[] { "Fabrikam.Reusable", "Contoso.Logging", "Acme.Widgets", "beta.tools" })]
+    [InlineData(SearchSortOrder.TitleAscending, new[] { "Acme.Widgets", "Contoso.Logging", "beta.tools", "Fabrikam.Reusable" })]
+    [InlineData(SearchSortOrder.TitleDescending, new[] { "Fabrikam.Reusable", "beta.tools", "Contoso.Logging", "Acme.Widgets" })]
+    [InlineData(SearchSortOrder.TotalDownloadsAscending, new[] { "beta.tools", "Fabrikam.Reusable", "Acme.Widgets", "Contoso.Logging" })]
+    [InlineData(SearchSortOrder.TotalDownloadsDescending, new[] { "Contoso.Logging", "Acme.Widgets", "Fabrikam.Reusable", "beta.tools" })]
+    public async Task Search_SortsPackages(SearchSortOrder sortOrder, string[] expected)
+    {
+        // The titles test that the newest version's title is used ("Zeta Widgets" is older),
+        // and that the ID is used when the title is missing or empty.
+        Assert.Equal(expected, await SearchAsync(query: null, sortOrder));
+    }
+
+    [SkippableFact]
+    public async Task Search_SortsByAllVersionsOfAMatchingPackage()
+    {
+        // Only Acme.Widgets 1.0.0 (10 downloads) mentions "reusable", but the package has 15 downloads in total.
+        Assert.Equal(
+            ["Acme.Widgets", "Fabrikam.Reusable"],
+            await SearchAsync("reusable", SearchSortOrder.TotalDownloadsDescending));
+    }
+
+    [SkippableFact]
+    public async Task Search_PagesSortedPackages()
+    {
+        Assert.Equal(
+            ["Acme.Widgets", "Fabrikam.Reusable"],
+            await SearchAsync(query: null, SearchSortOrder.TotalDownloadsDescending, skip: 1, take: 2));
+    }
+
+    [SkippableFact]
+    public async Task Search_SortedResultsIncludeAllVersions()
+    {
+        Skip.IfNot(IsAvailable);
+
+        await using var context = CreateQueryContext();
+        var response = await CreateService(context).SearchAsync(
+            new SearchRequest
+            {
+                Query = "acme",
+                Take = 20,
+                IncludePrerelease = true,
+                IncludeSemVer2 = true,
+                SortOrder = SearchSortOrder.TotalDownloadsDescending,
+            },
+            CancellationToken.None);
+
+        var result = Assert.Single(response.Data);
+        Assert.Equal("2.0.0", result.Version);
+        Assert.Equal(15, result.TotalDownloads);
+        Assert.Equal(["2.0.0", "1.0.0"], result.Versions.Select(version => version.Version));
+    }
+
+    private async Task<IReadOnlyList<string>> SearchAsync(
+        string query,
+        SearchSortOrder sortOrder = SearchSortOrder.Relevance,
+        int skip = 0,
+        int take = 20)
     {
         Skip.IfNot(IsAvailable);
 
@@ -154,9 +214,11 @@ public abstract class DatabaseSearchServiceFacts<TContext> : IAsyncLifetime
             new SearchRequest
             {
                 Query = query,
-                Take = 20,
+                Skip = skip,
+                Take = take,
                 IncludePrerelease = true,
                 IncludeSemVer2 = true,
+                SortOrder = sortOrder,
             },
             CancellationToken.None);
 

@@ -40,4 +40,10 @@ public class SearchRequest
     /// The search query.
     /// </summary>
     public string Query { get; set; }
+
+    /// <summary>
+    /// The order of the results. This is not part of the NuGet protocol, see <see cref="SearchSortOrder"/>.
+    /// Search services that cannot sort return results in their default order.
+    /// </summary>
+    public SearchSortOrder SortOrder { get; set; } = SearchSortOrder.Relevance;
 }

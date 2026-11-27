@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,19 @@ public class DatabaseSearchService : ISearchService
             request.PackageType,
             frameworks);
 
+        var packages = request.SortOrder == SearchSortOrder.Relevance
+            ? await FindPackagesOrderedByIdAsync(search, request, frameworks, cancellationToken)
+            : await FindSortedPackagesAsync(search, request, frameworks, cancellationToken);
+
+        return _searchBuilder.BuildSearch(packages);
+    }
+
+    private async Task<IReadOnlyList<PackageRegistration>> FindPackagesOrderedByIdAsync(
+        IQueryable<Package> search,
+        SearchRequest request,
+        IReadOnlyList<string> frameworks,
+        CancellationToken cancellationToken)
+    {
         var packageIds = search
             .Select(p => p.Id)
             .Distinct()
@@ -70,12 +84,79 @@ public class DatabaseSearchService : ISearchService
             frameworks);
 
         var results = await search.ToListAsync(cancellationToken);
-        var groupedResults = results
+        return results
             .GroupBy(p => p.Id, StringComparer.OrdinalIgnoreCase)
             .Select(group => new PackageRegistration(group.Key, group.ToList()))
             .ToList();
+    }
 
-        return _searchBuilder.BuildSearch(groupedResults);
+    private async Task<IReadOnlyList<PackageRegistration>> FindSortedPackagesAsync(
+        IQueryable<Package> search,
+        SearchRequest request,
+        IReadOnlyList<string> frameworks,
+        CancellationToken cancellationToken)
+    {
+        // The sort keys are computed from all the versions returned for a package, not only from the
+        // versions that matched the query, so that the order agrees with the response (its total
+        // downloads, for example).
+        var versions = ApplySearchFilters(
+            _context.Packages,
+            request.IncludePrerelease,
+            request.IncludeSemVer2,
+            request.PackageType,
+            frameworks);
+        var matchingIds = search.Select(p => p.Id);
+
+        var registrations = versions
+            .Where(p => matchingIds.Contains(p.Id))
+            .GroupBy(p => p.Id)
+            .Select(group => new
+            {
+                Id = group.Key,
+                TotalDownloads = group.Sum(p => p.Downloads),
+                LastPublished = group.Max(p => p.Published),
+
+                // As on nuget.org: the newest version's title, or the ID if it has none, ignoring case.
+                SortableTitle = group
+                    .OrderByDescending(p => p.Published)
+                    .Select(p => (p.Title == null || p.Title.Trim() == "" ? p.Id : p.Title.Trim()).ToLower())
+                    .FirstOrDefault(),
+            });
+
+        var sorted = request.SortOrder switch
+        {
+            SearchSortOrder.LastEdited
+                or SearchSortOrder.Published
+                or SearchSortOrder.CreatedDescending => registrations.OrderByDescending(r => r.LastPublished),
+            SearchSortOrder.CreatedAscending => registrations.OrderBy(r => r.LastPublished),
+            SearchSortOrder.TitleAscending => registrations.OrderBy(r => r.SortableTitle),
+            SearchSortOrder.TitleDescending => registrations.OrderByDescending(r => r.SortableTitle),
+            SearchSortOrder.TotalDownloadsAscending => registrations.OrderBy(r => r.TotalDownloads),
+            SearchSortOrder.TotalDownloadsDescending => registrations.OrderByDescending(r => r.TotalDownloads),
+            _ => throw new ArgumentOutOfRangeException(nameof(request), request.SortOrder, "Unknown search sort order."),
+        };
+
+        // The ID breaks ties, so that pages do not overlap.
+        var packageIds = await sorted
+            .ThenBy(r => r.Id)
+            .Select(r => r.Id)
+            .Skip(request.Skip)
+            .Take(request.Take)
+            .ToListAsync(cancellationToken);
+
+        var results = await versions
+            .Where(p => packageIds.Contains(p.Id))
+            .ToListAsync(cancellationToken);
+
+        var positions = packageIds
+            .Select((id, position) => (id, position))
+            .ToDictionary(entry => entry.id, entry => entry.position, StringComparer.OrdinalIgnoreCase);
+
+        return results
+            .GroupBy(p => p.Id, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(group => positions[group.Key])
+            .Select(group => new PackageRegistration(group.Key, group.ToList()))
+            .ToList();
     }
 
     public async Task<AutocompleteResponse> AutocompleteAsync(AutocompleteRequest request, CancellationToken cancellationToken)
@@ -148,6 +229,7 @@ public class DatabaseSearchService : ISearchService
     /// </summary>
     private const int MaxKeywords = 10;
 
+    [SuppressMessage("Performance", "CA1862", Justification = "EF Core translates ToLower(), not the StringComparison overloads.")]
     private static IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
     {
         foreach (var term in ParseKeywords(search))
@@ -167,6 +249,7 @@ public class DatabaseSearchService : ISearchService
         return query;
     }
 
+    [SuppressMessage("Performance", "CA1862", Justification = "EF Core translates ToLower(), not the StringComparison overloads.")]
     private static IQueryable<Package> ApplyAutocompleteQuery(IQueryable<Package> query, string search)
     {
         foreach (var term in ParseKeywords(search))
