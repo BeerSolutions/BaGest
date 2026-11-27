@@ -25,25 +25,31 @@
         <header>
             <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
                 <div class="container flex-wrap">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a nav-link asp-area="" asp-page="/Index" class="nav-link"><span>Packages</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a nav-link asp-area="" asp-page="/Upload" class="nav-link"><span>Upload</span></a>
-                        </li>
-                        @if (StatisticsOptions.Value.EnableStatisticsPage)
-                        {
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-navigation" aria-controls="main-navigation" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse order-last order-lg-0" id="main-navigation">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a nav-link asp-area="" asp-page="/Statistics" class="nav-link"><span>Statistics</span></a>
+                                <a nav-link asp-area="" asp-page="/Index" class="nav-link"><span>Packages</span></a>
                             </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://beersolutions.github.io/BaGest/docs" target="_blank" rel="noopener noreferrer">
-                                <span>Documentation</span>
-                            </a>
-                        </li>
-                    </ul>
+                            <li class="nav-item">
+                                <a nav-link asp-area="" asp-page="/Upload" class="nav-link"><span>Upload</span></a>
+                            </li>
+                            @if (StatisticsOptions.Value.EnableStatisticsPage)
+                            {
+                                <li class="nav-item">
+                                    <a nav-link asp-area="" asp-page="/Statistics" class="nav-link"><span>Statistics</span></a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link" href="https://beersolutions.github.io/BaGest/docs" target="_blank" rel="noopener noreferrer">
+                                    <span>Documentation</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                     <form class="d-flex" action="@Url.Page("/Index")" method="get" role="search">
                         <div class="input-group">
