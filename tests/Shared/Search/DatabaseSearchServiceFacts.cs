@@ -108,6 +108,23 @@ public abstract class DatabaseSearchServiceFacts<TContext> : IAsyncLifetime
         Assert.Empty(await SearchAsync("contoso widgets"));
     }
 
+    [SkippableFact]
+    public async Task Search_KeywordsDifferingOnlyInCaseCountOnceTowardsTheLimit()
+    {
+        // Ten spellings of one keyword followed by a keyword no package matches together with it.
+        // If the spellings were kept apart, the last keyword would be dropped by the limit.
+        var query = "acme Acme ACME aCME acME acmE AcMe aCmE ACme AcME contoso";
+
+        Assert.Empty(await SearchAsync(query));
+    }
+
+    [SkippableFact]
+    public async Task Search_DoesNotDecodeTheQueryAgain()
+    {
+        // ASP.NET Core has already decoded the query string, so "%2E" here is literal text, not a dot.
+        Assert.Empty(await SearchAsync("Acme%2EWidgets"));
+    }
+
     [SkippableTheory]
     [InlineData("acme")]
     [InlineData("ACME")]
@@ -120,6 +137,12 @@ public abstract class DatabaseSearchServiceFacts<TContext> : IAsyncLifetime
     public async Task Autocomplete_DoesNotMatchDescription()
     {
         Assert.Empty(await AutocompleteAsync("structured"));
+    }
+
+    [SkippableFact]
+    public async Task Autocomplete_DoesNotDecodeTheQueryAgain()
+    {
+        Assert.Empty(await AutocompleteAsync("Acme%2EWidgets"));
     }
 
     private async Task<IReadOnlyList<string>> SearchAsync(string query)

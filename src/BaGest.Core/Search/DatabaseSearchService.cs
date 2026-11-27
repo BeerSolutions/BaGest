@@ -142,30 +142,20 @@ public class DatabaseSearchService : ISearchService
         return _searchBuilder.BuildDependents(dependents);
     }
     
+    /// <summary>
+    /// The maximum number of keywords applied to a query. Each keyword adds a condition to the SQL statement,
+    /// so an unbounded number could exceed the database's expression limits.
+    /// </summary>
+    private const int MaxKeywords = 10;
+
     private static IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
     {
-        if (string.IsNullOrWhiteSpace(search))
+        foreach (var term in ParseKeywords(search))
         {
-            return query;
-        }
-
-        // Decode URL-encoded characters (like %20 for space) before splitting
-        search = Uri.UnescapeDataString(search);
-
-        // De-duplicate keywords and cap at 10 to prevent SQLite/SQL expression tree limits
-        var keywords = search
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .Distinct()
-            .Take(10);
-
-        foreach (var keyword in keywords)
-        {
-            // Lowercase both sides: not every provider compares these columns case-insensitively
+            // Search across multiple fields for the main search endpoint.
+            // Lowercase the columns too: not every provider compares them case-insensitively
             // (SQLite's instr() ignores the column collation, PostgreSQL stores them as plain text).
             // The pattern has a leading wildcard, so no index could be used anyway.
-            var term = keyword.ToLowerInvariant();
-
-            // Search across multiple fields for the main search endpoint
             query = query.Where(p =>
                 p.Id.ToLower().Contains(term) ||
                 (p.Description != null && p.Description.ToLower().Contains(term)) ||
@@ -179,27 +169,32 @@ public class DatabaseSearchService : ISearchService
 
     private static IQueryable<Package> ApplyAutocompleteQuery(IQueryable<Package> query, string search)
     {
-        if (string.IsNullOrWhiteSpace(search))
+        foreach (var term in ParseKeywords(search))
         {
-            return query;
-        }
-
-        search = Uri.UnescapeDataString(search);
-
-        var keywords = search
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .Distinct()
-            .Take(10);
-
-        foreach (var keyword in keywords)
-        {
-            var term = keyword.ToLowerInvariant();
-
             // Autocomplete should ONLY match the package ID
             query = query.Where(p => p.Id.ToLower().Contains(term));
         }
 
         return query;
+    }
+
+    /// <summary>
+    /// Splits a query into the lowercase keywords that must all match. The query is used as received:
+    /// ASP.NET Core has already decoded the query string, and decoding it again would change literal
+    /// percent signs.
+    /// </summary>
+    private static IEnumerable<string> ParseKeywords(string search)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+        {
+            return [];
+        }
+
+        return search
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(keyword => keyword.ToLowerInvariant())
+            .Distinct()
+            .Take(MaxKeywords);
     }
 
     private static IQueryable<Package> ApplySearchFilters(
