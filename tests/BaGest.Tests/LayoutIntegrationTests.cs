@@ -84,6 +84,19 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Equal(new[] { "btn" }, ClassesOf(button));
     }
 
+    [Fact]
+    public async Task LeavesTheSizeOfSearchResultTitlesToTheStylesheet()
+    {
+        await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
+
+        var content = await GetPageAsync("/");
+
+        // Font utilities are !important and would override the title size and weight in site.css.
+        var titles = FindElements(content, "a").Where(a => ClassesOf(a).Contains("package-title")).ToList();
+        Assert.Single(titles);
+        Assert.Equal(new[] { "package-title", "text-decoration-none" }, ClassesOf(titles[0]));
+    }
+
     [Theory]
     [InlineData("/upload")]
     [InlineData("/packages/TestData/1.2.3")]

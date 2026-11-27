@@ -115,7 +115,7 @@ else
                     </div>
                     <div class="flex-grow-1">
                         <div>
-                            <a asp-page="Package" asp-route-id="@package.PackageId" asp-route-version="@package.Version" class="package-title fs-5 fw-bold text-decoration-none">
+                            <a asp-page="Package" asp-route-id="@package.PackageId" asp-route-version="@package.Version" class="package-title text-decoration-none">
                                 @package.PackageId
                             </a>
                             <span class="ms-2">by: @string.Join(", ", package.Authors)</span>
