@@ -26,13 +26,18 @@
       ]
     },
     {
-      "library": "alpinejs@2.8.1",
+      "library": "alpinejs@3.17.5",
       "destination": "wwwroot/lib/alpinejs/",
       "files": [
-        "dist/alpine-ie11.js",
-        "dist/alpine.js",
-        "LICENSE.md",
-        "README.md"
+        "dist/cdn.min.js"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "alpinejs/alpine@v3.17.5",
+      "destination": "wwwroot/lib/alpinejs/",
+      "files": [
+        "LICENSE.md"
       ]
     },
     {
