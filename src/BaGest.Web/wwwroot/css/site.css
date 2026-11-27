@@ -184,11 +184,13 @@ a:not([class]):focus {
 -------------------------------------------------- */
 
 .deprecation-banner {
-  margin-top: 8px;
-  margin-bottom: 16px;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding: 0.5rem;
+  padding-top: 0rem;
 }
 
 .deprecation-banner p {
@@ -214,11 +216,13 @@ a:not([class]):focus {
 }
 
 .release-note-banner {
-  margin-top: 8px;
-  margin-bottom: 16px;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding: 0.5rem;
+  padding-top: 0rem;
 }
 
 .release-note-banner p {
