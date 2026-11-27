@@ -14,6 +14,8 @@
   --search-button-border-color: #bf6f00;
   --search-button-hover-bg-color: #a56000;
   --search-button-hover-border-color: #814b00;
+  /* Borders of the search filter controls */
+  --control-border-color: #002b4d;
   /* Alerts */
   --alert-warning-bg-color: #fff4ce;
   --alert-warning-border-color: #fff4ce;
@@ -63,6 +65,8 @@
     --search-button-border-color: #e68900;
     --search-button-hover-bg-color: #cc7a00;
     --search-button-hover-border-color: #b36b00;
+    /* Borders of the search filter controls (at least 3:1 against the page) */
+    --control-border-color: #777;
     /* Alerts */
     --alert-warning-bg-color: #333;
     --alert-warning-border-color: #333;
@@ -246,6 +250,7 @@ a:not([class]):focus {
 /* Navigation
 -------------------------------------------------- */
 .navbar {
+  margin-bottom: 20px;
   border-radius: 0;
   /* IMPORTANT: Overrides bg-dark from Layout.cshtml so the variable takes effect */
   background-color: var(--navbar-bg-color) !important; 
@@ -256,6 +261,14 @@ a:not([class]):focus {
   font-weight: 100;
   color: var(--navbar-text-color) !important;
   padding: 10px 15px;
+}
+
+/* In the expanded menu, pull the links left by their padding so the first
+   label lines up with the page content below. */
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-nav {
+    margin-left: calc(-1 * var(--bs-navbar-nav-link-padding-x));
+  }
 }
 
 .navbar-nav .nav-link:hover,
@@ -277,34 +290,25 @@ a:not([class]):focus {
 
 /* Search
 -------------------------------------------------- */
-.search-container {
-  padding-top: 16px;
-  padding-bottom: 16px;
-}
-
-.search-container .form-control {
+/* The search box in the navigation bar: square corners and a solid
+   orange button with a white icon. */
+.search-form .form-control {
   border-radius: 0;
-  background-color: var(--body-bg-color);
-  color: var(--text-color);
-  border-color: var(--navbar-border-color);
 }
 
-.search-container button {
-  height: 38px;
-  color: #fff;
-  background-color: var(--search-button-bg-color);
-  border-color: var(--search-button-border-color);
-  border-radius: 0; /* BS5 Input Group Fix */
-}
-
-.search-container button:active,
-.search-container button:active:focus,
-.search-container button:active:hover,
-.search-container button:focus,
-.search-container button:hover {
-  background-color: var(--search-button-hover-bg-color);
-  border-color: var(--search-button-hover-border-color);
-  color: #fff;
+.search-form .btn {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--search-button-bg-color);
+  --bs-btn-border-color: var(--search-button-border-color);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--search-button-hover-bg-color);
+  --bs-btn-hover-border-color: var(--search-button-hover-border-color);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--search-button-hover-bg-color);
+  --bs-btn-active-border-color: var(--search-button-hover-border-color);
+  /* The plain .btn has no focus ring color; without one keyboard focus is invisible. */
+  --bs-btn-focus-shadow-rgb: 216, 126, 0;
+  border-radius: 0;
 }
 
 /* Index page
@@ -336,26 +340,24 @@ a:not([class]):focus {
   margin-right: 5px;
 }
 
+/* Every item has a separator on its left. The list is pulled left by the
+   width of a separator plus its padding and that strip is clipped, so the
+   first item of each row (also after wrapping) shows no separator. */
 .search-result .info {
   padding-left: 0;
   margin-top: 8px;
   margin-bottom: 8px;
+  margin-left: -11px;
+  column-gap: 10px;
   line-height: 22px;
   color: #666;
   overflow: hidden;
-  text-overflow: ellipsis;
+  clip-path: inset(0 0 0 11px);
 }
 
 .search-result .info li {
-  display: inline-block;
-}
-
-.search-result .info li + li {
   padding-left: 10px;
-  margin-left: 10px;
-  border-color: var(--navbar-border-color);
-  border-width: 1px;
-  border-left-style: solid;
+  border-left: 1px solid var(--package-used-by-border-color);
 }
 
 .search-result .ms-Icon {
@@ -367,18 +369,21 @@ a:not([class]):focus {
 /* Tabbed instructions (BS5 Flexbox Update)
 -------------------------------------------------- */
 .tabbed-info {
-  font-size: 0.85em;
+  font-size: 0.8em;
   margin-top: 15px;
 }
 
+/* The tabs sit directly on the command box; on narrow screens they wrap
+   with the same spacing between rows as between tabs. */
 .tabbed-info .nav-tabs {
+  gap: 5px;
   border-bottom: none;
 }
 
 .tabbed-info .nav-link {
-  padding: 5px 15px;
-  margin-right: 5px;
-  margin-bottom: 0;
+  padding: 5px 10px;
+  margin: 0;
+  line-height: 1.42857143;
   color: var(--tabbed-info-inactive-text-color);
   background-color: var(--tabbed-info-bg-color);
   border: 0;
@@ -410,7 +415,7 @@ a:not([class]):focus {
   line-height: 1.5;
   color: var(--tabbed-info-script-text-color);
   background-color: var(--tabbed-info-script-bg-color);
-  border: 1px solid #002440;
+  border: 1px solid var(--tabbed-info-script-bg-color);
   border-right: none;
   overflow-x: auto;
 }
@@ -444,6 +449,7 @@ a:not([class]):focus {
 
 @media screen and (max-width: 768px) {
   .display-package .package-icon img {
+    display: block;
     margin-left: auto;
     margin-right: auto;
     max-height: 60px;
@@ -477,8 +483,14 @@ a:not([class]):focus {
   white-space: pre-wrap;
 }
 
-.package-details-info {
-  margin-top: -25px;
+/* Next to the package details, pull the sidebar up so its first heading
+   lines up with the package title. Once the columns stack, the sidebar
+   follows the details, and pulling it up would lay it over the end of the
+   version list and block the "Show more" button. */
+@media (min-width: 576px) {
+  .package-details-info {
+    margin-top: -25px;
+  }
 }
 
 .package-details-info .ms-Icon-ul li {
@@ -493,9 +505,10 @@ a:not([class]):focus {
   margin-top: 3px;
 }
 
+/* Tags are flat chips in the size of the surrounding text. */
 .package-details-info .tag {
   background-color: var(--package-details-tag-bg-color);
-  padding: 4px 10px;
+  padding: 2px 10px;
   line-height: 2em;
   margin: 0 2px;
 }
@@ -523,6 +536,15 @@ a:not([class]):focus {
 
 .display-package .package-used-by tbody tr {
   border-bottom: 1px solid var(--package-used-by-border-color);
+}
+
+/* Rows of the version table are separated by lines, the header by a heavier one. */
+.display-package .version-list .table {
+  --bs-table-border-color: var(--package-used-by-border-color);
+}
+
+.display-package .version-list thead th {
+  border-bottom-width: 2px;
 }
 
 .dependency-groups h4 {
@@ -601,6 +623,7 @@ code {
 .table-info {
   --bs-table-bg: var(--versions-table-bg-color-current) !important;
   --bs-table-color: var(--text-color) !important;
+  --bs-table-border-color: var(--package-used-by-border-color) !important;
 }
 
 /* Index Page & Cards (Theme Support)
@@ -608,7 +631,7 @@ code {
 .card {
   background-color: var(--body-bg-color);
   color: var(--text-color);
-  border: 1px solid var(--navbar-border-color);
+  border: 1px solid var(--package-used-by-border-color);
 }
 
 .search-result .package-title {
@@ -619,44 +642,34 @@ code {
   text-decoration: underline !important;
 }
 
-/* Tags (in Package Detail & Index)
--------------------------------------------------- */
-.tag {
-  background-color: var(--package-details-tag-bg-color);
-  color: var(--text-color);
-  padding: 4px 10px;
-  font-weight: normal;
-  border: 1px solid var(--navbar-border-color);
-}
-
-/* Dark mode adjustment for tags so they stand out */
-@media (prefers-color-scheme: dark) {
-  .tag {
-    border-color: #555;
-    color: #e3ebf1;
-  }
-}
-
 /* Search Filters Form
 -------------------------------------------------- */
 /* Theme the filter buttons through the Bootstrap button variables so that
    the hover, focus and open (.show) states all stay readable. */
 .search-options .btn-outline-secondary {
   --bs-btn-color: var(--text-color);
-  --bs-btn-border-color: var(--navbar-border-color);
+  --bs-btn-border-color: var(--control-border-color);
   --bs-btn-hover-color: var(--text-color);
   --bs-btn-hover-bg: var(--tabbed-info-bg-color);
-  --bs-btn-hover-border-color: var(--navbar-border-color);
+  --bs-btn-hover-border-color: var(--control-border-color);
   --bs-btn-active-color: var(--text-color);
   --bs-btn-active-bg: var(--tabbed-info-bg-color);
-  --bs-btn-active-border-color: var(--navbar-border-color);
+  --bs-btn-active-border-color: var(--control-border-color);
+}
+
+/* Compact filter menus: the framework list is long and would otherwise
+   make the page about twice as tall when opened. */
+.search-options .dropdown-menu {
+  --bs-dropdown-font-size: 0.875rem;
+  --bs-dropdown-item-padding-y: 0.15rem;
+  --bs-dropdown-header-padding-y: 0.25rem;
 }
 
 /* Adjust checkbox in dark mode (Bootstrap 5 otherwise sets it to white) */
 @media (prefers-color-scheme: dark) {
   .search-options .form-check-input {
     background-color: var(--body-bg-color);
-    border-color: var(--navbar-border-color);
+    border-color: var(--control-border-color);
   }
   
   .search-options .form-check-input:checked {

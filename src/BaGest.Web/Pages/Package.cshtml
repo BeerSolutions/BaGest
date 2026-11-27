@@ -71,7 +71,7 @@ else
             }
 
             <div class="tabbed-info" x-data="{ tabs: tabs, active: tabs[0] }">
-                <ul class="nav nav-tabs mb-3">
+                <ul class="nav nav-tabs">
                     <template x-for="tab in tabs" :key="tab.name">
                         <li class="nav-item">
                             <a class="nav-link" href="#" x-bind:class="{ 'active': active.name === tab.name }" x-text="tab.name" @@click="active = tab"></a>
@@ -191,7 +191,7 @@ else
 
             @{ ExpandableSection("Versions", "bi bi-stopwatch", expanded: true,
                 @<div class="version-list" x-data="{ showAll: false }">
-                    <table class="table table-borderless table-sm">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>Version</th>
@@ -310,7 +310,7 @@ else
                     <p>
                         @foreach(var tag in Model.Package.Tags)
                         {
-                            <span class="tag badge me-1 mb-1">@tag</span>
+                            <span class="tag">@tag</span>
                         }
                     </p>
                 </div>
