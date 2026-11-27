@@ -103,20 +103,11 @@ public class LayoutIntegrationTests : IDisposable
     [Fact]
     public async Task ShowsPackageTagsAsPlainChips()
     {
-        var builder = new PackageBuilder
+        await AddPackageAsync("Tagged.Package", builder =>
         {
-            Id = "Tagged.Package",
-            Version = NuGetVersion.Parse("1.0.0"),
-            Description = "A package with tags.",
-        };
-        builder.Authors.Add("Test Author");
-        builder.Tags.Add("first");
-        builder.Tags.Add("second");
-        builder.Files.Add(new PhysicalPackageFile { SourcePath = GetType().Assembly.Location, TargetPath = "lib/netstandard2.0/Test.dll" });
-        using var package = new MemoryStream();
-        builder.Save(package);
-        package.Position = 0;
-        await _app.AddPackageAsync(package);
+            builder.Tags.Add("first");
+            builder.Tags.Add("second");
+        });
 
         var content = await GetPageAsync("/packages/Tagged.Package/1.0.0");
 
@@ -208,6 +199,44 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Equal(new[] { "table" }, ClassesOf(ParseAttributes(table.Groups["attributes"].Value)));
     }
 
+    [Fact]
+    public async Task RendersMarkdownReleaseNotesWithoutKeepingTheSourceWhitespace()
+    {
+        await AddPackageAsync("Markdown.Notes", builder => builder.ReleaseNotes = "Adds two features.\n\n- First feature\n- Second feature\n\nSee the changelog.");
+
+        var content = await GetPageAsync("/packages/Markdown.Notes/1.0.0");
+
+        var notes = Regex.Match(content, @"<div class=""package-release-notes"">(?<html>(?:(?!</div>).)*)</div>", RegexOptions.Singleline);
+        Assert.True(notes.Success, "The release notes were not rendered.");
+        Assert.Contains("<p>Adds two features.</p>", notes.Groups["html"].Value);
+        Assert.Contains("<li>First feature</li>", notes.Groups["html"].Value);
+        Assert.Contains("<p>See the changelog.</p>", notes.Groups["html"].Value);
+
+        // The notes are HTML, so the line breaks Markdig writes between elements must not show as blank lines.
+        Assert.All(
+            SiteStylesheetRules().Where(r => r.Selector.Contains("package-release-notes", StringComparison.Ordinal)),
+            r => Assert.DoesNotContain("white-space", r.Body));
+    }
+
+    [Theory]
+    [InlineData(".display-package .package-description", "pre-wrap")]
+    [InlineData(".deprecation-message", "pre-line")]
+    public void KeepsTheLineBreaksOfPlainTextFields(string selector, string whiteSpace)
+    {
+        var rule = Assert.Single(SiteStylesheetRules(), r => r.Selector == selector);
+        Assert.Matches($@"white-space:\s*{whiteSpace};", rule.Body);
+    }
+
+    [Fact]
+    public async Task KeepsTheLineBreaksOfPlainTextReleaseNotes()
+    {
+        await AddPackageAsync("Plain.Notes", builder => builder.ReleaseNotes = "Fixed the login timeout.\nUpdated the dependencies.");
+
+        var content = await GetPageAsync("/packages/Plain.Notes/1.0.0");
+
+        Assert.Matches(@"<div class=""package-release-notes""><p>Fixed the login timeout\.<br\s*/?>\s*Updated the dependencies\.</p>", content);
+    }
+
     public void Dispose()
     {
         _client.Dispose();
@@ -221,18 +250,47 @@ public class LayoutIntegrationTests : IDisposable
         return await response.Content.ReadAsStringAsync();
     }
 
-    private static string FindIconStylesheet()
+    private async Task AddPackageAsync(string id, Action<PackageBuilder> configure)
+    {
+        var builder = new PackageBuilder
+        {
+            Id = id,
+            Version = NuGetVersion.Parse("1.0.0"),
+            Description = "A test package.",
+        };
+        builder.Authors.Add("Test Author");
+        configure(builder);
+        builder.Files.Add(new PhysicalPackageFile { SourcePath = GetType().Assembly.Location, TargetPath = "lib/netstandard2.0/Test.dll" });
+        using var package = new MemoryStream();
+        builder.Save(package);
+        package.Position = 0;
+        await _app.AddPackageAsync(package);
+    }
+
+    private static string FindIconStylesheet() =>
+        FindWebRootFile(Path.Combine("lib", "bootstrap-icons", "font", "bootstrap-icons.min.css"));
+
+    // The innermost rules of site.css; rules inside a media query are listed on their own.
+    private static List<(string Selector, string Body)> SiteStylesheetRules()
+    {
+        var stylesheet = Regex.Replace(File.ReadAllText(FindWebRootFile(Path.Combine("css", "site.css"))), @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+        return Regex.Matches(stylesheet, @"(?<selector>[^{};]+)\{(?<body>[^{}]*)\}")
+            .Select(m => (m.Groups["selector"].Value.Trim(), m.Groups["body"].Value))
+            .ToList();
+    }
+
+    private static string FindWebRootFile(string relativePath)
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
         {
-            var candidate = Path.Combine(directory.FullName, "src", "BaGest.Web", "wwwroot", "lib", "bootstrap-icons", "font", "bootstrap-icons.min.css");
+            var candidate = Path.Combine(directory.FullName, "src", "BaGest.Web", "wwwroot", relativePath);
             if (File.Exists(candidate))
             {
                 return candidate;
             }
         }
 
-        throw new InvalidOperationException("Could not find the Bootstrap Icons stylesheet above the test output directory.");
+        throw new InvalidOperationException($"Could not find wwwroot/{relativePath} of BaGest.Web above the test output directory.");
     }
 
     private static IEnumerable<Dictionary<string, string>> FindElements(string content, string tagName) =>
