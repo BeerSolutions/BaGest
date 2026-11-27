@@ -68,6 +68,31 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Contains("/_content/BaGest.Web/lib/bootstrap/dist/js/bootstrap.bundle.min.js", content);
     }
 
+    [Theory]
+    [InlineData("/upload")]
+    [InlineData("/packages/TestData/1.2.3")]
+    public async Task AttachesTheInstallTabsToTheCommandBox(string path)
+    {
+        await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
+
+        var content = await GetPageAsync(path);
+
+        // A margin utility on the tab list would put a gap between the tabs and the command they switch.
+        var tabs = Regex.Match(content, @"<div class=""tabbed-info[^""]*""[^>]*>\s*<ul\s(?<attributes>[^>]*)>");
+        Assert.True(tabs.Success, "The install instructions were not rendered.");
+        Assert.Equal(new[] { "nav", "nav-tabs" }, ClassesOf(ParseAttributes(tabs.Groups["attributes"].Value)));
+    }
+
+    [Fact]
+    public async Task AttachesTheDocumentationNoteToTheUploadCommand()
+    {
+        var content = await GetPageAsync("/upload");
+
+        var note = FindElements(content, "div").SingleOrDefault(a => ClassesOf(a).Contains("alert-warning"));
+        Assert.NotNull(note);
+        Assert.Equal(new[] { "icon-text", "alert", "alert-warning" }, ClassesOf(note));
+    }
+
     public void Dispose()
     {
         _client.Dispose();

@@ -355,18 +355,21 @@ a:not([class]):focus {
 /* Tabbed instructions (BS5 Flexbox Update)
 -------------------------------------------------- */
 .tabbed-info {
-  font-size: 0.85em;
+  font-size: 0.8em;
   margin-top: 15px;
 }
 
+/* The tabs sit directly on the command box; on narrow screens they wrap
+   with the same spacing between rows as between tabs. */
 .tabbed-info .nav-tabs {
+  gap: 5px;
   border-bottom: none;
 }
 
 .tabbed-info .nav-link {
-  padding: 5px 15px;
-  margin-right: 5px;
-  margin-bottom: 0;
+  padding: 5px 10px;
+  margin: 0;
+  line-height: 1.42857143;
   color: var(--tabbed-info-inactive-text-color);
   background-color: var(--tabbed-info-bg-color);
   border: 0;
