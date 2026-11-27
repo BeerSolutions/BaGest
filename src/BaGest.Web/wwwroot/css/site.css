@@ -515,6 +515,15 @@ a:not([class]):focus {
   border-bottom: 1px solid var(--package-used-by-border-color);
 }
 
+/* Rows of the version table are separated by lines, the header by a heavier one. */
+.display-package .version-list .table {
+  --bs-table-border-color: var(--package-used-by-border-color);
+}
+
+.display-package .version-list thead th {
+  border-bottom-width: 2px;
+}
+
 .dependency-groups h4 {
   line-height: 1.4;
 }
@@ -591,6 +600,7 @@ code {
 .table-info {
   --bs-table-bg: var(--versions-table-bg-color-current) !important;
   --bs-table-color: var(--text-color) !important;
+  --bs-table-border-color: var(--package-used-by-border-color) !important;
 }
 
 /* Index Page & Cards (Theme Support)

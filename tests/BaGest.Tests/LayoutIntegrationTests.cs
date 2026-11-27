@@ -110,6 +110,18 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Contains("icon", ClassesOf(icon));
     }
 
+    [Fact]
+    public async Task SeparatesTheRowsOfTheVersionTable()
+    {
+        await _app.AddPackageAsync(TestResources.GetResourceStream(TestResources.Package));
+
+        var content = await GetPageAsync("/packages/TestData/1.2.3");
+
+        var table = Regex.Match(content, @"<div class=""version-list""[^>]*>\s*<table\s(?<attributes>[^>]*)>");
+        Assert.True(table.Success, "The version table was not rendered.");
+        Assert.Equal(new[] { "table" }, ClassesOf(ParseAttributes(table.Groups["attributes"].Value)));
+    }
+
     public void Dispose()
     {
         _client.Dispose();
