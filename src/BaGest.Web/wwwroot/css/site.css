@@ -29,6 +29,11 @@
   --copy-button-border-color: #bf6f00;
   --copy-button-hover-bg-color: #a56000;
   --copy-button-hover-border-color: #814b00;
+  /* Links (Bootstrap reads the -rgb variants for plain links) */
+  --bs-link-color: #337ab7;
+  --bs-link-color-rgb: 51, 122, 183;
+  --bs-link-hover-color: #23527c;
+  --bs-link-hover-color-rgb: 35, 82, 124;
   /* Package Page */
   --link-button-color: #337ab7;
   --package-details-tag-bg-color: #eff9ff;
@@ -142,6 +147,17 @@ h4 {
   margin-top: 11px;
   margin-bottom: 11px;
   font-size: 20px;
+}
+
+/* Plain links are underlined only on hover or focus. Links styled by a
+   component class (nav links, dropdown items, buttons) keep their own look. */
+a:not([class]) {
+  text-decoration: none;
+}
+
+a:not([class]):hover,
+a:not([class]):focus {
+  text-decoration: underline;
 }
 
 /* BS5 Support for legacy class */
