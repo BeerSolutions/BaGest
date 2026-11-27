@@ -172,6 +172,11 @@ public class LayoutIntegrationTests : IDisposable
             .ToList();
         Assert.NotEmpty(icons);
         Assert.All(icons, icon => Assert.Contains("bi", ClassesOf(icon)));
+
+        // Every glyph named on the page, including the ones Alpine toggles, exists in the icon font.
+        var stylesheet = File.ReadAllText(FindIconStylesheet());
+        var glyphs = Regex.Matches(content, @"(?<![\w-])bi-[a-z0-9-]+").Select(m => m.Value).Distinct().ToList();
+        Assert.All(glyphs, glyph => Assert.Contains($".{glyph}::before", stylesheet));
     }
 
     [Fact]
@@ -214,6 +219,20 @@ public class LayoutIntegrationTests : IDisposable
         using var response = await _client.GetAsync(path);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         return await response.Content.ReadAsStringAsync();
+    }
+
+    private static string FindIconStylesheet()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
+        {
+            var candidate = Path.Combine(directory.FullName, "src", "BaGest.Web", "wwwroot", "lib", "bootstrap-icons", "font", "bootstrap-icons.min.css");
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        throw new InvalidOperationException("Could not find the Bootstrap Icons stylesheet above the test output directory.");
     }
 
     private static IEnumerable<Dictionary<string, string>> FindElements(string content, string tagName) =>

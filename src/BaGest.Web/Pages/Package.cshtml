@@ -78,11 +78,12 @@ else
                     <div class="copy-button">
                         <button class="btn btn-outline-warning btn-sm"
                                 type="button"
+                                aria-label="Copy"
                                 data-bs-toggle="popover"
                                 data-bs-placement="bottom"
                                 data-bs-content="Copied"
                                 @@click="window.baget.copyTextToClipboard(active.content.join('\n'), $el)">
-                            <i class="bi bi-copy"></i>
+                            <i class="bi bi-copy" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -244,7 +245,7 @@ else
                     @if (Model.Package.ProjectUrlString != null)
                     {
                         <li>
-                            <i class="bi bi-globe"></i>
+                            <i class="bi bi-globe" aria-hidden="true"></i>
                             <a href="@Model.Package.ProjectUrlString">Project URL</a>
                         </li>
                     }
@@ -262,13 +263,13 @@ else
                     @if (Model.LicenseUrl != null)
                     {
                         <li>
-                            <i class="bi bi-award"></i>
+                            <i class="bi bi-award" aria-hidden="true"></i>
                             <a href="@Model.LicenseUrl">License</a>
                         </li>
                     }
 
                     <li>
-                        <i class="bi bi-cloud-download"></i>
+                        <i class="bi bi-cloud-download" aria-hidden="true"></i>
                         <a href="@Model.PackageDownloadUrl">Download package</a>
                     </li>
                 </ul>
@@ -279,12 +280,12 @@ else
 
                 <ul class="list-unstyled icon-list">
                     <li>
-                        <i class="bi bi-download"></i>
+                        <i class="bi bi-download" aria-hidden="true"></i>
                         @Model.TotalDownloads.ToString("N0") total downloads
                     </li>
 
                     <li>
-                        <i class="bi bi-file-earmark-arrow-down"></i>
+                        <i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>
                         @Model.Package.Downloads.ToString("N0") downloads of current version
                     </li>
                 </ul>

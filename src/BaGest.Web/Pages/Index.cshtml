@@ -121,11 +121,11 @@ else
                             <span class="ms-2">by: @string.Join(", ", package.Authors)</span>
                         </div>
                         <ul class="info list-unstyled mt-2 mb-2 d-flex flex-wrap">
-                            <li><i class="bi bi-download"></i> @package.TotalDownloads.ToMetric() total downloads</li>
-                            <li><i class="bi bi-flag"></i> Latest version: @package.Version</li>
+                            <li><i class="bi bi-download" aria-hidden="true"></i> @package.TotalDownloads.ToMetric() total downloads</li>
+                            <li><i class="bi bi-flag" aria-hidden="true"></i> Latest version: @package.Version</li>
                             @if (package.Tags.Any())
                             {
-                                <li><i class="bi bi-tag"></i> @string.Join(" ", package.Tags)</li>
+                                <li><i class="bi bi-tag" aria-hidden="true"></i> @string.Join(" ", package.Tags)</li>
                             }
                         </ul>
                         <div>

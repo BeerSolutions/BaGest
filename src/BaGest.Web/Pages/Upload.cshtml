@@ -34,11 +34,12 @@
             <div class="copy-button">
                 <button class="btn btn-outline-warning btn-sm"
                         type="button"
+                        aria-label="Copy"
                         data-bs-toggle="popover"
                         data-bs-placement="bottom"
                         data-bs-content="Copied"
                         @@click="window.baget.copyTextToClipboard(active.content.join('\n'), $el)">
-                    <i class="bi bi-copy"></i>
+                    <i class="bi bi-copy" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
