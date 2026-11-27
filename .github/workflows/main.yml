@@ -43,6 +43,19 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
 
+      - name: Check client libraries match libman.json
+        shell: bash
+        run: |
+          dotnet tool restore
+          rm -rf src/BaGest.Web/wwwroot/lib
+          (cd src/BaGest.Web && dotnet libman restore)
+          changes="$(git status --porcelain --untracked-files=all -- src/BaGest.Web/wwwroot/lib)"
+          if [ -n "$changes" ]; then
+            echo "::error::wwwroot/lib differs from what 'dotnet libman restore' produces:"
+            echo "$changes"
+            exit 1
+          fi
+
   integration:
     runs-on: ubuntu-latest
     timeout-minutes: 20

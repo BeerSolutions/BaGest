@@ -9,10 +9,13 @@ using Xunit;
 namespace BaGest.Web.Tests;
 
 /// <summary>
-/// Keeps wwwroot/lib reproducible: it must be exactly what "libman restore" produces from libman.json.
+/// Keeps libman.json and wwwroot/lib describing the same files. The CI build also restores
+/// wwwroot/lib from scratch and fails on any difference, which covers versions and contents.
 /// </summary>
 public class ClientLibrariesFacts
 {
+    private const string LibFolderPrefix = "wwwroot/lib/";
+
     private static readonly string WebProjectDirectory = FindWebProjectDirectory();
     private static readonly string LibDirectory = Path.Combine(WebProjectDirectory, "wwwroot", "lib");
 
@@ -43,14 +46,14 @@ public class ClientLibrariesFacts
     }
 
     [Fact]
-    public void EveryDeclaredLibraryShipsItsLicense()
+    public void EveryLibraryFolderShipsALicense()
     {
-        var destinations = DeclaredFiles()
-            .GroupBy(f => f.Split('/')[2])
+        var folders = DeclaredFiles()
+            .GroupBy(f => f[..f.IndexOf('/', LibFolderPrefix.Length)])
             .ToList();
 
-        Assert.NotEmpty(destinations);
-        Assert.All(destinations, library => Assert.Contains(library, f => Path.GetFileName(f).StartsWith("LICENSE", StringComparison.Ordinal)));
+        Assert.NotEmpty(folders);
+        Assert.All(folders, folder => Assert.Contains(folder, f => Path.GetFileName(f).StartsWith("LICENSE", StringComparison.Ordinal)));
     }
 
     private static IEnumerable<string> DeclaredFiles()
@@ -59,7 +62,10 @@ public class ClientLibrariesFacts
 
         foreach (var library in libman.RootElement.GetProperty("libraries").EnumerateArray())
         {
-            var destination = library.GetProperty("destination").GetString()!.TrimEnd('/');
+            var destination = Normalize(library.GetProperty("destination").GetString()!).TrimEnd('/');
+            Assert.StartsWith(LibFolderPrefix, destination + "/", StringComparison.Ordinal);
+            Assert.NotEqual(LibFolderPrefix, destination + "/");
+
             foreach (var file in library.GetProperty("files").EnumerateArray())
             {
                 yield return Normalize($"{destination}/{file.GetString()}");
