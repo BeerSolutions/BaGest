@@ -325,26 +325,24 @@ a:not([class]):focus {
   margin-right: 5px;
 }
 
+/* Every item has a separator on its left. The list is pulled left by the
+   width of a separator plus its padding and that strip is clipped, so the
+   first item of each row (also after wrapping) shows no separator. */
 .search-result .info {
   padding-left: 0;
   margin-top: 8px;
   margin-bottom: 8px;
+  margin-left: -11px;
+  column-gap: 10px;
   line-height: 22px;
   color: #666;
   overflow: hidden;
-  text-overflow: ellipsis;
+  clip-path: inset(0 0 0 11px);
 }
 
 .search-result .info li {
-  display: inline-block;
-}
-
-.search-result .info li + li {
   padding-left: 10px;
-  margin-left: 10px;
-  border-color: var(--navbar-border-color);
-  border-width: 1px;
-  border-left-style: solid;
+  border-left: 1px solid var(--package-used-by-border-color);
 }
 
 .search-result .ms-Icon {
