@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using NuGet.Packaging;
+using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -95,6 +98,34 @@ public class LayoutIntegrationTests : IDisposable
         var titles = FindElements(content, "a").Where(a => ClassesOf(a).Contains("package-title")).ToList();
         Assert.Single(titles);
         Assert.Equal(new[] { "package-title", "text-decoration-none" }, ClassesOf(titles[0]));
+    }
+
+    [Fact]
+    public async Task ShowsPackageTagsAsPlainChips()
+    {
+        var builder = new PackageBuilder
+        {
+            Id = "Tagged.Package",
+            Version = NuGetVersion.Parse("1.0.0"),
+            Description = "A package with tags.",
+        };
+        builder.Authors.Add("Test Author");
+        builder.Tags.Add("first");
+        builder.Tags.Add("second");
+        builder.Files.Add(new PhysicalPackageFile { SourcePath = GetType().Assembly.Location, TargetPath = "lib/netstandard2.0/Test.dll" });
+        using var package = new MemoryStream();
+        builder.Save(package);
+        package.Position = 0;
+        await _app.AddPackageAsync(package);
+
+        var content = await GetPageAsync("/packages/Tagged.Package/1.0.0");
+
+        // The badge class shrinks the text and rounds the chip like a button.
+        var tags = Regex.Matches(content, @"<span\s(?<attributes>[^>]*)>(?<text>[^<]*)</span>")
+            .Where(m => ClassesOf(ParseAttributes(m.Groups["attributes"].Value)).Contains("tag"))
+            .ToList();
+        Assert.Equal(new[] { "first", "second" }, tags.Select(m => m.Groups["text"].Value));
+        Assert.All(tags, m => Assert.Equal(new[] { "tag" }, ClassesOf(ParseAttributes(m.Groups["attributes"].Value))));
     }
 
     [Theory]
