@@ -1,9 +1,11 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BaGest.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -105,6 +107,40 @@ public class ApiIntegrationTests : IDisposable
     }
 
     [Fact]
+    public async Task SearchMatchesDescription()
+    {
+        await _app.AddPackageAsync(_packageStream);
+
+        using var response = await _client.GetAsync("v3/search?q=description");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(1, await GetTotalHitsAsync(response));
+    }
+
+    [Theory]
+    [InlineData("description%20TestData", 1)]
+    [InlineData("description%20PackageDoesNotExist", 0)]
+    public async Task SearchRequiresAllKeywords(string query, int totalHits)
+    {
+        await _app.AddPackageAsync(_packageStream);
+
+        using var response = await _client.GetAsync($"v3/search?q={query}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(totalHits, await GetTotalHitsAsync(response));
+    }
+
+    [Fact]
+    public async Task SearchWithManyKeywordsReturnsOk()
+    {
+        var query = string.Join("%20", Enumerable.Repeat("test", 1000));
+
+        using var response = await _client.GetAsync($"v3/search?q={query}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public async Task AutocompleteReturnsOk()
     {
         await _app.AddPackageAsync(_packageStream);
@@ -140,6 +176,17 @@ public class ApiIntegrationTests : IDisposable
   ""totalHits"": 0,
   ""data"": []
 }", json);
+    }
+
+    [Fact]
+    public async Task AutocompleteDoesNotMatchDescription()
+    {
+        await _app.AddPackageAsync(_packageStream);
+
+        using var response = await _client.GetAsync("v3/autocomplete?q=description");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(0, await GetTotalHitsAsync(response));
     }
 
     [Fact]
@@ -465,6 +512,12 @@ public class ApiIntegrationTests : IDisposable
     {
         _app.Dispose();
         _client.Dispose();
+    }
+
+    private static async Task<int> GetTotalHitsAsync(HttpResponseMessage response)
+    {
+        using var json = JsonDocument.Parse(await response.Content.ReadAsStreamAsync());
+        return json.RootElement.GetProperty("totalHits").GetInt32();
     }
 
     private static MemoryStream CreatePackage(string metadata)

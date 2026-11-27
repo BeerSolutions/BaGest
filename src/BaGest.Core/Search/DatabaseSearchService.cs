@@ -82,7 +82,7 @@ public class DatabaseSearchService : ISearchService
     {
         IQueryable<Package> search = _context.Packages;
 
-        search = ApplySearchQuery(search, request.Query);
+        search = ApplyAutocompleteQuery(search, request.Query);
         search = ApplySearchFilters(
             search,
             request.IncludePrerelease,
@@ -141,18 +141,62 @@ public class DatabaseSearchService : ISearchService
 
         return _searchBuilder.BuildDependents(dependents);
     }
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1862:Use the 'StringComparison' method overloads to perform case-insensitive string comparisons", Justification = "Not for EF queries")]
+    
     private static IQueryable<Package> ApplySearchQuery(IQueryable<Package> query, string search)
     {
-        if (string.IsNullOrEmpty(search))
+        if (string.IsNullOrWhiteSpace(search))
         {
             return query;
         }
 
-        search = search.ToLowerInvariant();
+        // Decode URL-encoded characters (like %20 for space) before splitting
+        search = Uri.UnescapeDataString(search);
 
-        return query.Where(p => p.Id.ToLower().Contains(search));
+        // De-duplicate keywords and cap at 10 to prevent SQLite/SQL expression tree limits
+        var keywords = search
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Distinct()
+            .Take(10);
+
+        foreach (var keyword in keywords)
+        {
+            var term = keyword;
+
+            // Search across multiple fields for the main search endpoint
+            query = query.Where(p => 
+                p.Id.Contains(term) || 
+                (p.Description != null && p.Description.Contains(term)) || 
+                (p.Summary != null && p.Summary.Contains(term)) ||
+                (p.Title != null && p.Title.Contains(term))
+            );
+        }
+
+        return query;
+    }
+
+    private static IQueryable<Package> ApplyAutocompleteQuery(IQueryable<Package> query, string search)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+        {
+            return query;
+        }
+
+        search = Uri.UnescapeDataString(search);
+
+        var keywords = search
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Distinct()
+            .Take(10);
+
+        foreach (var keyword in keywords)
+        {
+            var term = keyword;
+
+            // Autocomplete should ONLY match the package ID
+            query = query.Where(p => p.Id.Contains(term));
+        }
+
+        return query;
     }
 
     private static IQueryable<Package> ApplySearchFilters(
