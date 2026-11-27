@@ -266,34 +266,25 @@ a:not([class]):focus {
 
 /* Search
 -------------------------------------------------- */
-.search-container {
-  padding-top: 16px;
-  padding-bottom: 16px;
-}
-
-.search-container .form-control {
+/* The search box in the navigation bar: square corners and a solid
+   orange button with a white icon. */
+.search-form .form-control {
   border-radius: 0;
-  background-color: var(--body-bg-color);
-  color: var(--text-color);
-  border-color: var(--navbar-border-color);
 }
 
-.search-container button {
-  height: 38px;
-  color: #fff;
-  background-color: var(--search-button-bg-color);
-  border-color: var(--search-button-border-color);
-  border-radius: 0; /* BS5 Input Group Fix */
-}
-
-.search-container button:active,
-.search-container button:active:focus,
-.search-container button:active:hover,
-.search-container button:focus,
-.search-container button:hover {
-  background-color: var(--search-button-hover-bg-color);
-  border-color: var(--search-button-hover-border-color);
-  color: #fff;
+.search-form .btn {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--search-button-bg-color);
+  --bs-btn-border-color: var(--search-button-border-color);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--search-button-hover-bg-color);
+  --bs-btn-hover-border-color: var(--search-button-hover-border-color);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--search-button-hover-bg-color);
+  --bs-btn-active-border-color: var(--search-button-hover-border-color);
+  /* The plain .btn has no focus ring color; without one keyboard focus is invisible. */
+  --bs-btn-focus-shadow-rgb: 216, 126, 0;
+  border-radius: 0;
 }
 
 /* Index page

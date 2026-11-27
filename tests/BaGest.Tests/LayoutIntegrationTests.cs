@@ -68,6 +68,22 @@ public class LayoutIntegrationTests : IDisposable
         Assert.Contains("/_content/BaGest.Web/lib/bootstrap/dist/js/bootstrap.bundle.min.js", content);
     }
 
+    [Fact]
+    public async Task StylesTheSearchButtonAsTheSiteSearchButton()
+    {
+        var content = await GetPageAsync("/");
+
+        // The site's search box styles apply through the search-form class; a Bootstrap
+        // button variant would override the solid orange button.
+        var form = FindElements(content, "form").SingleOrDefault(a => a.GetValueOrDefault("role") == "search");
+        Assert.NotNull(form);
+        Assert.Contains("search-form", ClassesOf(form));
+
+        var button = FindElements(content, "button").SingleOrDefault(a => a.GetValueOrDefault("type") == "submit");
+        Assert.NotNull(button);
+        Assert.Equal(new[] { "btn" }, ClassesOf(button));
+    }
+
     [Theory]
     [InlineData("/upload")]
     [InlineData("/packages/TestData/1.2.3")]
