@@ -467,10 +467,6 @@ a:not([class]):focus {
   max-width: 100%;
 }
 
-.display-package .package-release-notes {
-  white-space: pre-wrap;
-}
-
 /* Next to the package details, pull the sidebar up so its first heading
    lines up with the package title. Once the columns stack, the sidebar
    follows the details, and pulling it up would lay it over the end of the
