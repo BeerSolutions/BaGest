@@ -232,6 +232,12 @@ h4 {
 .navbar-nav .nav-link.active {
   color: var(--navbar-active-text-color) !important;
   background-color: transparent;
+}
+
+/* Underline only the label, so the line does not span the whole row of the
+   expanded menu on small screens. */
+.navbar-nav .nav-link.active span {
+  padding: 5px 0;
   border-bottom: 1px solid var(--navbar-active-text-color);
 }
 
