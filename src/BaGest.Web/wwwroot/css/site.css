@@ -184,19 +184,8 @@ a:not([class]):focus {
   left: -24px;
 }
 
-/* Alerts
+/* Depraction Banner
 -------------------------------------------------- */
-.alert {
-  padding: 8px 8px;
-  border: 1px solid transparent;
-  border-radius: 0;
-}
-
-.alert-warning {
-  color: var(--alert-warning-text-color);
-  background-color: var(--alert-warning-bg-color);
-  border-color: var(--alert-warning-border-color);
-}
 
 .deprecation-banner {
   margin-top: 8px;
@@ -204,35 +193,19 @@ a:not([class]):focus {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  padding-bottom: 0;
 }
 
 .deprecation-header {
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  font-weight: 600;
+  font-size: 1.2rem;
 }
 
 .deprecation-header .bi {
   font-size: 20px;
-  margin-top: 2px;
-}
-
-.deprecation-summary {
-  font-weight: 600;
-}
-
-.deprecation-message {
-  margin-top: 2px;
-  white-space: pre-line;
-}
-
-.deprecation-alt {
-  margin-left: 32px;
-}
-
-.deprecated-version {
-  color: var(--alert-warning-text-color);
-  margin-left: 4px;
 }
 
 /* Navigation
