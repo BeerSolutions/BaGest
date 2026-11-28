@@ -38,31 +38,27 @@ else
             @if (Model.Deprecation != null)
             {
                 <div class="deprecation-banner alert alert-warning" role="alert">
-                    <div class="deprecation-header">
-                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
-                        <div class="deprecation-text">
-                            <div class="deprecation-summary">@Model.Deprecation.Summary</div>
-                            @if (Model.Deprecation.Message != null)
-                            {
-                                <div class="deprecation-message">@Model.Deprecation.Message</div>
-                            }
-                        </div>
+                    <div class="deprecation-header alert-heading">
+                        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @Model.Deprecation.Summary
                     </div>
-
+                    @if (Model.Deprecation.Message != null)
+                    {
+                        @Model.Deprecation.Message
+                    }
                     @if (Model.Deprecation.AlternatePackageId != null)
                     {
-                        <div class="deprecation-alt">
+                        <p>
                             <strong>Suggested alternative</strong>:
                             <a asp-page="Package" asp-route-id="@Model.Deprecation.AlternatePackageId">@Model.Deprecation.AlternatePackageId</a>
                             @if (Model.Deprecation.AlternatePackageVersionSpec != null)
                             {
-                                <span class="text-muted">@Model.Deprecation.AlternatePackageVersionSpec</span>
+                                <span class="text-secondary">@Model.Deprecation.AlternatePackageVersionSpec</span>
                             }
-                        </div>
+                        </p>
                     }
                 </div>
             }
-
+            
             <div class="tabbed-info" x-data="{ tabs: tabs, active: tabs[0] }">
                 <ul class="nav nav-tabs">
                     <template x-for="tab in tabs" :key="tab.name">
@@ -73,7 +69,7 @@ else
                 </ul>
 
                 <div class="content">
-                    <div class="script" x-text="`${active.prefix} ${active.content}`"></div>
+                    <div class="script bg-secondary" x-text="`${active.prefix} ${active.content}`"></div>
 
                     <div class="copy-button">
                         <button class="btn btn-outline-warning btn-sm"
